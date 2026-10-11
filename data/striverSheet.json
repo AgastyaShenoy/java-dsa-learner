@@ -1,0 +1,482 @@
+[
+  {
+    "id": "set-matrix-zeroes",
+    "sheetIndex": 1,
+    "title": "Set Matrix Zeroes",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-I",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/set-matrix-zeroes/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/set-matrix-zero/",
+    "youtubeId": "M65xBewcqcI",
+    "hints": [
+      "Instead of allocating extra O(M x N) space, can you mark rows and columns that must be zeroed using auxiliary markers?",
+      "To achieve true O(1) extra space, repurpose the first row `matrix[0][..]` and first column `matrix[..][0]` as your state tracking arrays.",
+      "Java gotcha: The cell `matrix[0][0]` is shared by both row 0 and column 0. Maintain an extra primitive `int col0 = 1;` flag. Process backward from `matrix.length - 1` down to 0 to prevent the first row/col markers from corrupting subsequent cell checks."
+    ]
+  },
+  {
+    "id": "pascals-triangle",
+    "sheetIndex": 2,
+    "title": "Pascal's Triangle",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-I",
+    "difficulty": "Easy",
+    "leetcodeUrl": "https://leetcode.com/problems/pascals-triangle/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/pascal-triangle/",
+    "youtubeId": "bR7mQgwQ_o8",
+    "hints": [
+      "Each row starts and ends with 1. Every interior element at `(r, c)` is the sum of `(r-1, c-1)` and `(r-1, c)`.",
+      "You can generate an entire row in O(N) time without factorial overflow by using the running formula: `ans = ans * (row - col) / col`.",
+      "Java gotcha: Use `List<List<Integer>> triangle = new ArrayList<>();`. When computing row values with multiplication, watch out for integer overflow if doing larger rows — cast intermediate multiplications to `long` before division if N > 30."
+    ]
+  },
+  {
+    "id": "next-permutation",
+    "sheetIndex": 3,
+    "title": "Next Permutation",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-I",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/next-permutation/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/next_permutation-find-next-lexicographically-greater-permutation/",
+    "youtubeId": "JDOXKqF60RQ",
+    "hints": [
+      "Find the first dip from the right end: locate index `i` such that `nums[i] < nums[i+1]`.",
+      "If no dip exists, the sequence is in descending order; reverse the entire array to get the smallest permutation.",
+      "Java gotcha: If `i >= 0`, scan from right to find index `j` with `nums[j] > nums[i]`, swap `nums[i]` and `nums[j]`, then reverse in-place from `i + 1` to `nums.length - 1` using a standard `while(left < right)` pointer loop."
+    ]
+  },
+  {
+    "id": "maximum-subarray",
+    "sheetIndex": 4,
+    "title": "Kadane's Algorithm (Maximum Subarray)",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-I",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-subarray/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/kadanes-algorithm-maximum-subarray-sum-in-an-array/",
+    "youtubeId": "AHZpyENo7k4",
+    "hints": [
+      "A negative running prefix sum will always hurt any subsequent contiguous subarray, so discard it and reset to 0.",
+      "Iterate through the array maintaining `currentSum = Math.max(nums[i], currentSum + nums[i])` and update `maxSum`.",
+      "Java gotcha: Do not initialize `maxSum = 0`! If all elements are negative (e.g. `[-5, -2, -8]`), the answer is `Integer.MIN_VALUE` or `nums[0]`. If subarray bounds are required, track `start`, `end`, and `tempStart`."
+    ]
+  },
+  {
+    "id": "sort-colors",
+    "sheetIndex": 5,
+    "title": "Sort Colors (Sort 0s, 1s, 2s)",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-I",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/sort-colors/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/sort-an-array-of-0s-1s-and-2s/",
+    "youtubeId": "tp8JIuCXBaU",
+    "hints": [
+      "Dutch National Flag algorithm partitions the array into 4 zones: `[0..low-1]` are 0s, `[low..mid-1]` are 1s, `[mid..high]` are unexplored, and `[high+1..N-1]` are 2s.",
+      "Use three pointers: `low = 0`, `mid = 0`, `high = nums.length - 1`. Loop while `mid <= high`.",
+      "Java gotcha: When swapping `nums[mid]` with `nums[high]`, do NOT increment `mid`! The element swapped from `high` is unknown and must be re-evaluated on the next iteration. Only increment `mid` when swapping with `low` or seeing a `1`."
+    ]
+  },
+  {
+    "id": "best-time-to-buy-and-sell-stock",
+    "sheetIndex": 6,
+    "title": "Best Time to Buy and Sell Stock",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-I",
+    "difficulty": "Easy",
+    "leetcodeUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/stock-buy-and-sell/",
+    "youtubeId": "excAOvwF_Wk",
+    "hints": [
+      "To maximize profit, for every selling day `i`, you must buy at the minimum price seen strictly before day `i`.",
+      "Track `minPriceSoFar` as you iterate once through the prices array, updating `maxProfit = Math.max(maxProfit, price - minPriceSoFar)`.",
+      "Java gotcha: Initialize `minPrice = Integer.MAX_VALUE` and `maxProfit = 0`. Single pass runs in O(N) time and O(1) space. Beware of empty or 1-element arrays."
+    ]
+  },
+  {
+    "id": "rotate-image",
+    "sheetIndex": 7,
+    "title": "Rotate Matrix / Image by 90 Degrees",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-II",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/rotate-image/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/rotate-image-by-90-degree/",
+    "youtubeId": "Y72QeW0106Q",
+    "hints": [
+      "Rotating 90 degrees clockwise is equivalent to two simple transformations: Transpose the matrix, then reverse each row.",
+      "Transpose converts rows to columns: swap `matrix[i][j]` with `matrix[j][i]` for `j > i`.",
+      "Java gotcha: In the transpose step, ensure inner loop starts at `j = i + 1` (not `0`), otherwise you will swap elements twice and revert the matrix to its original state."
+    ]
+  },
+  {
+    "id": "merge-intervals",
+    "sheetIndex": 8,
+    "title": "Merge Overlapping Subintervals",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-II",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/merge-intervals/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/merge-overlapping-sub-intervals/",
+    "youtubeId": "2JzRBPFYbKE",
+    "hints": [
+      "Sorting intervals by their start time `interval[0]` clusters overlapping intervals contiguously.",
+      "Maintain a current interval. If `next.start <= current.end`, merge them by setting `current.end = Math.max(current.end, next.end)`.",
+      "Java gotcha: Sort with `Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));` instead of `a[0] - b[0]` to avoid arithmetic overflow. Convert dynamic `List<int[]>` result back with `result.toArray(new int[result.size()][]);`."
+    ]
+  },
+  {
+    "id": "merge-sorted-array",
+    "sheetIndex": 9,
+    "title": "Merge Two Sorted Arrays Without Extra Space",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-II",
+    "difficulty": "Easy",
+    "leetcodeUrl": "https://leetcode.com/problems/merge-sorted-array/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/merge-two-sorted-arrays-without-extra-space/",
+    "youtubeId": "n7uwj04E0I4",
+    "hints": [
+      "If merging from the beginning, you would overwrite elements of `nums1`. What happens if you fill `nums1` from the back?",
+      "Use 3 pointers: `p1 = m - 1`, `p2 = n - 1`, and `p = m + n - 1`. Place the larger of `nums1[p1]` and `nums2[p2]` at `nums1[p]`.",
+      "Java gotcha: While `p2 >= 0`, if `p1 < 0`, you must directly copy the remaining `nums2` elements into `nums1`. If `p1 >= 0` and `nums2` is exhausted first, `nums1` is already in place."
+    ]
+  },
+  {
+    "id": "find-the-duplicate-number",
+    "sheetIndex": 10,
+    "title": "Find the Duplicate Number (1 to N)",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-II",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/find-the-duplicate-number/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/find-the-duplicate-in-an-array-of-n1-integers/",
+    "youtubeId": "32Ll35mhWg0",
+    "hints": [
+      "Because numbers are in the range `[1, n]`, you can interpret the array as a functional linked list where `i -> nums[i]`.",
+      "A duplicate number means multiple indices point to the same value, creating a cycle. Use Floyd's Tortoise and Hare algorithm.",
+      "Java gotcha: Initialize `slow = nums[0]` and `fast = nums[0]`. Phase 1: `slow = nums[slow]; fast = nums[nums[fast]];` until they collide. Phase 2: reset `slow = nums[0]`, advance both 1 step at a time until collision."
+    ]
+  },
+  {
+    "id": "repeat-and-missing-number",
+    "sheetIndex": 11,
+    "title": "Repeat and Missing Number Array",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-II",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/find-missing-and-repeated-values/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/find-the-repeating-and-missing-numbers/",
+    "youtubeId": "2D0D8HE6uak",
+    "hints": [
+      "Let repeating be `X` and missing be `Y`. Form two equations: `Sum(actual) - Sum(1..N) = X - Y` and `SumSq(actual) - SumSq(1..N) = X^2 - Y^2`.",
+      "Since `X^2 - Y^2 = (X - Y)(X + Y)`, you can divide by `(X - Y)` to find `(X + Y)`, and then solve for `X` and `Y` in O(N) time and O(1) space.",
+      "Java gotcha: Sum of squares of N numbers `N * (N + 1) * (2N + 1) / 6` easily exceeds 32-bit `int` limits for N >= 10^5. Cast all accumulators to `long` before squaring: `(long)num * num`."
+    ]
+  },
+  {
+    "id": "inversion-of-array",
+    "sheetIndex": 12,
+    "title": "Count Inversions in an Array",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-II",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/global-and-local-inversions/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/count-inversions-in-an-array/",
+    "youtubeId": "kQ1mJlwW-c0",
+    "hints": [
+      "An inversion occurs when `i < j` and `arr[i] > arr[j]`. A modified Merge Sort algorithm counts inversions during the merge step.",
+      "When merging two sorted halves `left` and `right`: if `arr[left] > arr[right]`, then `arr[right]` is inverted with all remaining elements in the left half: `mid - left + 1` inversions.",
+      "Java gotcha: Inversion count can be up to `N*(N-1)/2`, which exceeds `Integer.MAX_VALUE`. Your helper function return type and accumulator variable MUST be `long`, not `int`."
+    ]
+  },
+  {
+    "id": "search-a-2d-matrix",
+    "sheetIndex": 13,
+    "title": "Search in a 2D Matrix",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-III",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/search-a-2d-matrix/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/search-in-a-sorted-2d-matrix/",
+    "youtubeId": "ZYpYur0znng",
+    "hints": [
+      "Since the matrix is sorted row by row and the first integer of each row is greater than the last integer of the previous row, the entire matrix can be treated as a single 1D sorted array of length `M * N`.",
+      "Perform a single binary search with `low = 0` and `high = (m * n) - 1`.",
+      "Java gotcha: Map 1D index `mid` to 2D coordinates: `int row = mid / cols; int col = mid % cols;`. Prevent integer overflow in `(low + high) / 2` by writing `low + (high - low) / 2`."
+    ]
+  },
+  {
+    "id": "powx-n",
+    "sheetIndex": 14,
+    "title": "Pow(x, n) - Binary Exponentiation",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-III",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/powx-n/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/calculate-the-power-of-a-number-powxn-binary-exponentiation/",
+    "youtubeId": "l0YC38763EQ",
+    "hints": [
+      "Binary Exponentiation reduces O(N) multiplication to O(log N). If `n` is even, `x^n = (x*x)^(n/2)`. If `n` is odd, `x^n = x * (x^(n-1))`.",
+      "Handle negative powers by setting `x = 1 / x` and `n = -n`.",
+      "Java gotcha: In Java, `Integer.MIN_VALUE = -2147483648`. If you do `-n`, it overflows back to `Integer.MIN_VALUE`! You MUST cast `n` to `long nn = n;` before taking `Math.abs(nn)` or negating."
+    ]
+  },
+  {
+    "id": "majority-element",
+    "sheetIndex": 15,
+    "title": "Majority Element (> N/2 times)",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-III",
+    "difficulty": "Easy",
+    "leetcodeUrl": "https://leetcode.com/problems/majority-element/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/find-the-majority-element-that-occurs-more-than-n-2-times/",
+    "youtubeId": "nP_ns3uSh80",
+    "hints": [
+      "Boyer-Moore Voting Algorithm: maintain a `candidate` and a `count`.",
+      "If `count == 0`, pick the current element as `candidate`. If current equals `candidate`, increment `count`, else decrement.",
+      "Java gotcha: If the problem doesn't guarantee a majority element exists, you must run a second pass to verify the candidate count is strictly `> N / 2`. In LeetCode 169 it is guaranteed."
+    ]
+  },
+  {
+    "id": "majority-element-ii",
+    "sheetIndex": 16,
+    "title": "Majority Element II (> N/3 times)",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-III",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/majority-element-ii/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/majority-elementsn-3-times-find-the-elements-that-appears-more-than-n-3-times-in-the-array/",
+    "youtubeId": "vwZj1K0e9U8",
+    "hints": [
+      "At most 2 elements can appear strictly more than `floor(N / 3)` times.",
+      "Extend Boyer-Moore: maintain two candidates `candidate1, candidate2` and two counters `count1, count2`.",
+      "Java gotcha: You MUST verify candidates in a second pass count, because candidates might not exceed N/3. Also, ensure candidates are distinct (`candidate1 != candidate2`) when initializing."
+    ]
+  },
+  {
+    "id": "unique-paths",
+    "sheetIndex": 17,
+    "title": "Grid Unique Paths",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-III",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/unique-paths/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/grid-unique-paths-count-paths-from-left-top-to-the-right-bottom-of-a-matrix/",
+    "youtubeId": "t_f0nwwdg5o",
+    "hints": [
+      "To go from `(0, 0)` to `(m-1, n-1)`, you must make exactly `m-1` Down steps and `n-1` Right steps: total `m + n - 2` steps.",
+      "The answer is combinations: `C(m + n - 2, m - 1)` or `C(N, R)`.",
+      "Java gotcha: In Java, computing factorials directly causes overflow instantly. Compute combinations iteratively: `double res = 1; for (int i = 1; i <= r; i++) res = res * (N - r + i) / i; return (int)res;`."
+    ]
+  },
+  {
+    "id": "reverse-pairs",
+    "sheetIndex": 18,
+    "title": "Reverse Pairs (LeetCode 493)",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-III",
+    "difficulty": "Hard",
+    "leetcodeUrl": "https://leetcode.com/problems/reverse-pairs/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/count-reverse-pairs/",
+    "youtubeId": "0e4bZaP3MDI",
+    "hints": [
+      "A reverse pair has `i < j` and `nums[i] > 2 * nums[j]`. Like Count Inversions, divide and conquer via Merge Sort works in O(N log N).",
+      "Crucial distinction: You cannot count pairs while merging because the condition has a factor of 2. You must count BEFORE the merge step using a two-pointer pass.",
+      "Java gotcha: Condition `nums[i] > 2 * nums[j]` can overflow 32-bit integer if `nums[j] >= 10^9`! Cast to `long`: `(long) nums[i] > 2L * nums[j]`."
+    ]
+  },
+  {
+    "id": "two-sum",
+    "sheetIndex": 19,
+    "title": "2 Sum Problem",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-IV",
+    "difficulty": "Easy",
+    "leetcodeUrl": "https://leetcode.com/problems/two-sum/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/two-sum-check-if-a-pair-with-given-sum-exists-in-array/",
+    "youtubeId": "UXDSeD9mN-k",
+    "hints": [
+      "Store numbers you've seen in a Hash Table: `Map<Integer, Integer> map = new HashMap<>();` mapping value -> index.",
+      "For each `nums[i]`, check if `map.containsKey(target - nums[i])`.",
+      "Java gotcha: To do this in a single pass, check the map first, and if not present, insert `nums[i]`. This naturally avoids using the exact same element twice."
+    ]
+  },
+  {
+    "id": "4sum",
+    "sheetIndex": 20,
+    "title": "4 Sum Problem",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-IV",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/4sum/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/4-sum-find-quads-that-add-up-to-a-target-value/",
+    "youtubeId": "eD95WRfh81c",
+    "hints": [
+      "Sort the array. Fix two pointers `i` and `j`, then use two pointers `left` and `right` for the remaining two elements (O(N^3) total).",
+      "Skip duplicate numbers at each pointer step (`i`, `j`, `left`, `right`) to avoid duplicate quadruplets without needing a Set.",
+      "Java gotcha: Summing four `int` values can exceed `Integer.MAX_VALUE` or `Integer.MIN_VALUE`. Compute the sum as `long sum = (long)nums[i] + nums[j] + nums[left] + nums[right];`."
+    ]
+  },
+  {
+    "id": "longest-consecutive-sequence",
+    "sheetIndex": 21,
+    "title": "Longest Consecutive Sequence",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-IV",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-consecutive-sequence/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/longest-consecutive-sequence-in-an-array/",
+    "youtubeId": "oO5uLE7EUlM",
+    "hints": [
+      "Insert all numbers into a `HashSet<Integer>` for O(1) lookup.",
+      "Only start counting a sequence if `num` is the START of a sequence (i.e. `!set.contains(num - 1)`).",
+      "Java gotcha: By only expanding when `!set.contains(num - 1)`, each element is visited at most twice, guaranteeing strict O(N) overall time complexity instead of O(N^2)."
+    ]
+  },
+  {
+    "id": "largest-subarray-with-0-sum",
+    "sheetIndex": 22,
+    "title": "Largest Subarray with 0 Sum",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-IV",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/contiguous-array/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/length-of-the-longest-subarray-with-zero-sum/",
+    "youtubeId": "xmguZ6GbatA",
+    "hints": [
+      "Prefix sum property: If `prefixSum[i] == prefixSum[j]`, the subarray between `i+1` and `j` sums to 0.",
+      "Maintain a `HashMap<Integer, Integer>` storing the earliest index where each prefix sum was seen.",
+      "Java gotcha: Do NOT update the index if the prefix sum already exists in the map! Keeping the earliest index maximizes `j - earliestIndex`."
+    ]
+  },
+  {
+    "id": "count-subarrays-with-given-xor",
+    "sheetIndex": 23,
+    "title": "Count Subarrays with Given XOR K",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-IV",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/xor-queries-of-a-subarray/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/count-the-number-of-subarrays-with-given-xor-k/",
+    "youtubeId": "eZr-6p0B7ME",
+    "hints": [
+      "XOR prefix property: If `xr` is cumulative XOR up to `i`, and a subarray ending at `i` has XOR `K`, then the prefix before this subarray must have XOR `x = xr ^ K`.",
+      "Use `HashMap<Integer, Integer> freq = new HashMap<>();` to store frequencies of prefix XOR values.",
+      "Java gotcha: Initialize the map with `freq.put(0, 1)` to account for subarrays starting from index 0 that directly have XOR equal to K."
+    ]
+  },
+  {
+    "id": "longest-substring-without-repeating-characters",
+    "sheetIndex": 24,
+    "title": "Longest Substring Without Repeating Characters",
+    "topic": "Arrays",
+    "subTopic": "Arrays Part-IV",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/length-of-longest-substring-without-any-repeating-character/",
+    "youtubeId": "-zSxTJkcdAo",
+    "hints": [
+      "Use a sliding window `[left, right]`. As `right` advances, track the last seen index of each character.",
+      "When a duplicate is encountered at `right`, jump `left = Math.max(left, lastSeen[c] + 1)`.",
+      "Java gotcha: Instead of `HashMap`, use an integer array `int[] lastIndex = new int[128]` initialized to `-1` for high cache locality and 0 allocation overhead."
+    ]
+  },
+  {
+    "id": "reverse-linked-list",
+    "sheetIndex": 25,
+    "title": "Reverse a Linked List",
+    "topic": "Linked List",
+    "subTopic": "Linked List Part-I",
+    "difficulty": "Easy",
+    "leetcodeUrl": "https://leetcode.com/problems/reverse-linked-list/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/reverse-a-linked-list/",
+    "youtubeId": "D2vI2DNJGd8",
+    "hints": [
+      "Iterative 3-pointer approach: maintain `prev`, `curr`, and `next`.",
+      "Save `next = curr.next`, point `curr.next = prev`, then shift `prev = curr` and `curr = next`.",
+      "Java gotcha: Remember to initialize `ListNode prev = null;`. The loop terminates when `curr == null`, and `prev` becomes the new head of the reversed list."
+    ]
+  },
+  {
+    "id": "middle-of-the-linked-list",
+    "sheetIndex": 26,
+    "title": "Find the Middle of Linked List",
+    "topic": "Linked List",
+    "subTopic": "Linked List Part-I",
+    "difficulty": "Easy",
+    "leetcodeUrl": "https://leetcode.com/problems/middle-of-the-linked-list/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/find-the-middle-of-a-linked-list/",
+    "youtubeId": "7LjQ57RqgEc",
+    "hints": [
+      "Use Tortoise and Hare pointers: `slow` moves 1 step while `fast` moves 2 steps.",
+      "When `fast` reaches the end (`fast == null || fast.next == null`), `slow` will be at the middle.",
+      "Java gotcha: For an even number of nodes (e.g. 1->2->3->4->5->6), this standard condition correctly stops at the second middle node (node 4), matching LeetCode specifications."
+    ]
+  },
+  {
+    "id": "merge-two-sorted-lists",
+    "sheetIndex": 27,
+    "title": "Merge Two Sorted Lists",
+    "topic": "Linked List",
+    "subTopic": "Linked List Part-I",
+    "difficulty": "Easy",
+    "leetcodeUrl": "https://leetcode.com/problems/merge-two-sorted-lists/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/merge-two-sorted-linked-lists/",
+    "youtubeId": "Xb4slpr1U4o",
+    "hints": [
+      "Use a dummy head node to avoid null-checking edge cases when appending the very first node.",
+      "Advance the pointer of whichever list has the smaller value, attaching it to `tail.next`.",
+      "Java gotcha: Sentinel pattern: `ListNode dummy = new ListNode(0); ListNode tail = dummy;`. After the loop, attach the non-null remainder with `tail.next = (l1 != null) ? l1 : l2;`, and return `dummy.next`."
+    ]
+  },
+  {
+    "id": "remove-nth-node-from-end-of-list",
+    "sheetIndex": 28,
+    "title": "Remove N-th Node From End of List",
+    "topic": "Linked List",
+    "subTopic": "Linked List Part-I",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/remove-n-th-node-from-the-end-of-a-linked-list/",
+    "youtubeId": "Lhu3MsXZy-Q",
+    "hints": [
+      "One-pass two-pointer approach: create a gap of `n` nodes between `fast` and `slow`.",
+      "Advance `fast` `n` steps ahead first. Then advance both `fast` and `slow` together until `fast.next == null`.",
+      "Java gotcha: Prepend a dummy node: `ListNode dummy = new ListNode(0, head);`. This cleanly handles deleting the head node itself without special-casing."
+    ]
+  },
+  {
+    "id": "add-two-numbers",
+    "sheetIndex": 29,
+    "title": "Add Two Numbers as Linked List",
+    "topic": "Linked List",
+    "subTopic": "Linked List Part-II",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/add-two-numbers/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/add-two-numbers-represented-as-linked-lists/",
+    "youtubeId": "LBVsXSMOIk4",
+    "hints": [
+      "Traverse both lists simultaneously, adding corresponding digits along with a `carry` variable.",
+      "For each step: `sum = val1 + val2 + carry; carry = sum / 10; newNode = new ListNode(sum % 10);`.",
+      "Java gotcha: Do not forget the final carry! The while loop condition must be `while (l1 != null || l2 != null || carry != 0)`. If carry is 1 after lists end, a final node `new ListNode(carry)` is added."
+    ]
+  },
+  {
+    "id": "delete-node-in-a-linked-list",
+    "sheetIndex": 30,
+    "title": "Delete Node in a Linked List (O(1))",
+    "topic": "Linked List",
+    "subTopic": "Linked List Part-II",
+    "difficulty": "Medium",
+    "leetcodeUrl": "https://leetcode.com/problems/delete-node-in-a-linked-list/",
+    "takeUForwardUrl": "https://takeuforward.org/data-structure/delete-given-node-in-a-linked-list-o1-approach/",
+    "youtubeId": "icnp4FJdZVM",
+    "hints": [
+      "You are given direct access only to the node to be deleted, not the head of the list.",
+      "Since you cannot change the pointer of the previous node, overwrite the current node's value with the next node's value.",
+      "Java gotcha: Copy `node.val = node.next.val;` and then bypass the next node with `node.next = node.next.next;`. The problem guarantees the node to be deleted is not the tail node."
+    ]
+  }
+]
