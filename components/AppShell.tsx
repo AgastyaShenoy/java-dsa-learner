@@ -17,6 +17,7 @@ import { canFloat, preparePipDocument, requestFloat } from '@/lib/float';
 import { FloatingTimer, FloatPanel } from './Focus/FloatingTimer';
 import { useToday } from '@/lib/hooks';
 import { localDay } from '@/lib/dates';
+import { buildHomeBaseStatus } from '@/lib/homebase';
 import type { Attempt, Problem } from '@/types';
 import { DEFAULT_SETTINGS } from '@/types';
 
@@ -77,7 +78,9 @@ function FloatApp() {
 
 function App() {
   const today = useToday();
-  const attempts = useLiveQuery(() => db.attempts.toArray(), [], [] as Attempt[]);
+  // Undefined until the first read, so Home Base never gets an empty snapshot while loading.
+  const loadedAttempts = useLiveQuery(() => db.attempts.toArray(), []);
+  const attempts = useMemo(() => loadedAttempts ?? [], [loadedAttempts]);
   const settings = useLiveQuery(getSettings, [], DEFAULT_SETTINGS);
   const session = useLiveQuery(getSession, [], undefined);
 
@@ -95,6 +98,9 @@ function App() {
   // Desktop app: the float is a separate always-on-top window owned by Electron.
   const [desktopFloatOpen, setDesktopFloatOpen] = useState(false);
   const floatable = useMemo(() => !!desktop || canFloat(), []);
+
+  // Desktop: publish progress to Home Base whenever something real changes.
+  usePublishToHomeBase(!!loadedAttempts, states, plan, stats, session, settings.leetcodeUsername);
 
   const sessionProblem = session ? BY_ID.get(session.problemId) : undefined;
   const focusOpen = !!session && !!sessionProblem && !focusMinimized && !logRequest;
@@ -189,7 +195,8 @@ function App() {
         hintsUsed: session.hintsRevealed,
         sawSolution: session.solutionRevealed,
         status: outcome === 'stuck' ? 'BLOCKER' : suggestStatus(session.hintsRevealed, session.solutionRevealed),
-        notes: session.triedNotes.length ? session.triedNotes.map((t, i) => `Before hint ${i + 1}: ${t}`).join('\n') : '',
+        notes: '',
+        triedNotes: session.triedNotes.slice(0, session.hintsRevealed),
       },
     });
   }, [session, pipWindow]);
@@ -221,6 +228,7 @@ function App() {
         day: localDay(now),
         at: now.toISOString(),
         ...values,
+        ...(req.prefill?.triedNotes?.length ? { triedNotes: req.prefill.triedNotes } : {}),
       });
       if (req.fromSession) await saveSession(null);
     }
@@ -341,4 +349,31 @@ function App() {
       )}
     </div>
   );
+}
+
+/**
+ * Desktop app only: hand Home Base a fresh snapshot (debounced) whenever the attempts,
+ * the plan or the running session change. Identical snapshots aren't re-sent.
+ */
+function usePublishToHomeBase(
+  ready: boolean,
+  states: ReturnType<typeof buildStates>,
+  plan: ReturnType<typeof planToday>,
+  stats: ReturnType<typeof computeStats>,
+  session: Awaited<ReturnType<typeof getSession>>,
+  leetcodeUsername: string,
+) {
+  const lastSent = useRef('');
+  useEffect(() => {
+    if (!ready || !desktop?.publishStatus) return;
+    const t = setTimeout(() => {
+      const status = buildHomeBaseStatus({ problems: PROBLEMS, byId: BY_ID, states, plan, stats, session, leetcodeUsername });
+      // Compare without the timestamps that change on every build.
+      const key = JSON.stringify({ ...status, updatedAt: '', session: status.session && { ...status.session, minutesSoFar: 0 } });
+      if (key === lastSent.current) return;
+      lastSent.current = key;
+      desktop.publishStatus!(status).catch(() => { lastSent.current = ''; });
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [ready, states, plan, stats, session, leetcodeUsername]);
 }

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Coffee } from 'lucide-react';
 import type { Attempt, AttemptKind, AttemptStatus, Problem, ProblemState } from '@/types';
 import { Dialog } from './ui/Dialog';
-import { Stamp, StatusDot } from './ui/bits';
+import { Stamp, StatusDot, TriedNotes } from './ui/bits';
 import { RESOLVE_GAP_DAYS, STATUS_LABEL, nextKind, suggestStatus } from '@/lib/progress';
 import { addDays, formatDay, localDay } from '@/lib/dates';
 
@@ -21,6 +21,8 @@ export interface LogRequest {
     hintsUsed: number;
     sawSolution: boolean;
     notes: string;
+    /** The session's "what have you tried?" notes, saved with the attempt as-is. */
+    triedNotes?: string[];
   };
 }
 
@@ -146,6 +148,8 @@ export function LogAttemptModal({ request, problem, state, onClose, onSave, onDe
           <input type="checkbox" checked={sawSolution} onChange={e => setSolution(e.target.checked)} className="accent-ink-pink w-4 h-4" />
           I looked at the solution (video, editorial or someone else&apos;s code)
         </label>
+
+        <TriedNotes notes={request.attempt?.triedNotes ?? request.prefill?.triedNotes} />
 
         <div>
           <label htmlFor="log-notes" className="label">Notes: what you missed, the key idea</label>

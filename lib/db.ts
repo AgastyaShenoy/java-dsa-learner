@@ -257,6 +257,9 @@ function validAttempt(x: unknown, known: Set<string>): Attempt | null {
     hintsUsed: Math.max(0, Math.min(2, Math.round(Number(o.hintsUsed) || 0))),
     sawSolution: o.sawSolution === true,
     notes: typeof o.notes === 'string' ? o.notes.slice(0, 20_000) : '',
+    ...(Array.isArray(o.triedNotes) && o.triedNotes.length
+      ? { triedNotes: o.triedNotes.filter((t): t is string => typeof t === 'string').slice(0, 2).map(t => t.slice(0, 4000)) }
+      : {}),
   };
 }
 

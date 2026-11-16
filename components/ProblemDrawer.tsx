@@ -4,7 +4,7 @@ import React from 'react';
 import { Bot, ExternalLink, FileText, Pencil, Play, PlusCircle, Trash2, Video } from 'lucide-react';
 import type { Attempt, Problem, ProblemState } from '@/types';
 import { Dialog } from './ui/Dialog';
-import { PhaseBadge, ProblemMeta, StatusStamp } from './ui/bits';
+import { PhaseBadge, ProblemMeta, StatusStamp, TriedNotes } from './ui/bits';
 import { STATUS_LABEL } from '@/lib/progress';
 import { formatDay, relativeDay } from '@/lib/dates';
 import { leetcodeUrl, youtubeUrl } from '@/lib/session';
@@ -74,6 +74,7 @@ export function ProblemDrawer({ problem, state, today, activeSessionProblemId, o
                       <button className="btn-icon !w-7 !h-7 hover:!text-ink-orange" onClick={() => onDeleteAttempt(a)} aria-label="Delete attempt"><Trash2 className="w-3.5 h-3.5" /></button>
                     </span>
                   </div>
+                  <TriedNotes notes={a.triedNotes} className="mt-2" />
                   {a.notes && <p className="mt-2 text-[0.9375rem] text-ink whitespace-pre-wrap">{a.notes}</p>}
                 </li>
               ))}

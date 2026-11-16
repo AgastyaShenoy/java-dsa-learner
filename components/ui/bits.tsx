@@ -81,3 +81,18 @@ export function HalftoneBar({ total, mastered, active = 0, label, height = 'h-3'
     </div>
   );
 }
+
+/** What you said you'd tried before each hint, printed small under a yellow hint tag. */
+export function TriedNotes({ notes, className = '' }: { notes?: string[]; className?: string }) {
+  if (!notes?.length) return null;
+  return (
+    <ul className={`space-y-1.5 text-sm ${className}`} aria-label="What you tried before each hint">
+      {notes.map((t, i) => (
+        <li key={i} className="flex gap-2 items-baseline">
+          <span className="t-label text-[10px] text-ink-yellow shrink-0">Before hint {i + 1}</span>
+          <span className="text-ink-2 whitespace-pre-wrap">{t}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}

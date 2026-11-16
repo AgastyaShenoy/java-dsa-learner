@@ -9,6 +9,7 @@
 //     logged in. The floating timer is a small always-on-top window of the same app.
 //  4. Checks GitHub Releases for updates, downloads them in the background and asks
 //     to restart when one is ready.
+//  5. Publishes progress to Home Base (home base\apps\dsa\status.json) when it changes.
 
 const { app, BrowserWindow, ipcMain, shell, dialog, Menu } = require('electron');
 const { spawn } = require('node:child_process');
@@ -165,6 +166,56 @@ function setupIpc() {
     mainWindow.focus();
     floatWindow?.close();
   });
+  // Only the main window publishes (the timer window is the same app; it would double-write).
+  ipcMain.handle('homebase:publish', (e, status) => {
+    if (!mainWindow || e.sender !== mainWindow.webContents) return false;
+    try {
+      return writeHomeBaseStatus(status);
+    } catch (err) {
+      fs.appendFileSync(logFile(), `\nhome base write failed: ${err?.message ?? err}\n`);
+      return false;
+    }
+  });
+}
+
+// ─── Home Base ────────────────────────────────────────────────────────────────
+// The tracker publishes its progress to `home base\apps\dsa\status.json`, which the
+// Home Base app reads. This app is that file's only writer. Only the packaged app
+// writes (dev runs on another origin with its own, different IndexedDB), unless
+// HOME_BASE_DIR is set. Nothing is written when there's no Home Base folder.
+
+function homeBaseDir() {
+  if (process.env.HOME_BASE_DIR) return process.env.HOME_BASE_DIR;
+  if (!app.isPackaged) return null;
+  const candidates = [
+    path.join(app.getPath('documents'), 'antigravity projects', 'home base'),
+    path.join(require('node:os').homedir(), 'Documents', 'antigravity projects', 'home base'),
+  ];
+  return candidates.find(d => fs.existsSync(d)) ?? null;
+}
+
+const STATUS_MAX_BYTES = 500 * 1024; // Home Base skips files over 512 KB.
+
+function writeHomeBaseStatus(status) {
+  const dir = homeBaseDir();
+  if (!dir || !fs.existsSync(dir)) return false;
+  if (!status || typeof status !== 'object' || status.app !== 'dsa' || status.schema !== 1) return false;
+  const json = JSON.stringify(status, null, 2) + '\n';
+  if (Buffer.byteLength(json) > STATUS_MAX_BYTES) return false;
+  const outDir = path.join(dir, 'apps', 'dsa');
+  fs.mkdirSync(outDir, { recursive: true });
+  const file = path.join(outDir, 'status.json');
+  const tmp = `${file}.${process.pid}.tmp`;
+  // Write then rename, so Home Base never reads a half-written file.
+  fs.writeFileSync(tmp, json, 'utf8');
+  try {
+    fs.renameSync(tmp, file);
+  } catch {
+    // The reader may have it open for a moment on Windows; fall back to a direct write.
+    fs.writeFileSync(file, json, 'utf8');
+    fs.rmSync(tmp, { force: true });
+  }
+  return true;
 }
 
 function setupUpdates() {

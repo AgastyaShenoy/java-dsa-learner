@@ -49,7 +49,10 @@ export interface Attempt {
   minutes: number;
   hintsUsed: number;
   sawSolution: boolean;
+  /** Final note: what you missed, the key idea. */
   notes: string;
+  /** What you said you had tried before each hint, in order (one per hint revealed). */
+  triedNotes?: string[];
 }
 
 // ─── Settings ──────────────────────────────────────────────────────────────────

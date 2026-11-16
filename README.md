@@ -35,6 +35,7 @@ Download `SDE-Tracker-Setup-x.y.z.exe` from [Releases](https://github.com/Agasty
 
 - **Updates:** the app checks GitHub Releases on launch and every 6 hours, downloads a new version in the background, and offers to restart. Your progress is kept.
 - **Start** opens the problem in your normal browser (where you're logged in to LeetCode) and a small always-on-top timer window, with pause, hints and the finish buttons.
+- **Home Base:** the app publishes your progress to `home base\apps\dsa\status.json` for the Home Base app to read. That covers counts, what's next, re-solves due, the attempt in progress, and every attempt's hints, what you tried before each one, and your final note. Field reference: [docs/home-base-status.md](docs/home-base-status.md).
 - **Your data** is the app's own, separate from the browser version. To move it over, use **Settings → Export backup** in the browser, then **Restore from backup** in the app.
 
 How it's built: `electron/main.js` starts the Next.js app's standalone server (`output: "standalone"`) on `127.0.0.1:31780` with Electron's own Node, and opens a window on it. The port is fixed because IndexedDB is tied to the origin. `electron/preload.js` exposes a small `window.desktop` bridge: open a link in the browser, open or close the timer window, and finish the attempt from it. Updates use `electron-updater` with the GitHub provider.

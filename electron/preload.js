@@ -17,4 +17,5 @@ contextBridge.exposeInMainWorld('desktop', {
   finishFromFloat: outcome => ipcRenderer.send('float:finish', outcome),
   onFinish: cb => subscribe('session:finish', cb),
   onFloatClosed: cb => subscribe('float:closed', cb),
+  publishStatus: status => ipcRenderer.invoke('homebase:publish', status),
 });
