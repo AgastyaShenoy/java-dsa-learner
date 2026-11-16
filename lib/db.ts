@@ -1,302 +1,310 @@
 import Dexie, { type Table } from 'dexie';
-import { Problem, ProblemLog, UserSettings, CoachReport, PacingMetrics } from '@/types';
-import seedProblems from '@/data/striverSheet.json';
+import type { Attempt, AttemptStatus, FocusSession, Problem, UserSettings, ContestRating } from '@/types';
+import { DEFAULT_SETTINGS } from '@/types';
+import { localDay, isValidDay } from './dates';
+import sheet from '@/data/striver180.json';
 
-export class SDETDatabase extends Dexie {
+// The JSON's inferred types are looser than Problem (string vs union, string[] vs tuple);
+// scripts/build-sheet.mjs is what guarantees the shape.
+export const SHEET_VERSION: number = sheet.version;
+export const SEED_PROBLEMS: Problem[] = sheet.problems as unknown as Problem[];
+
+/** Generic key-value rows: seed version, focus session, cached contest rating, migration leftovers. */
+interface KV {
+  key: string;
+  value: unknown;
+}
+
+export class TrackerDB extends Dexie {
   problems!: Table<Problem, string>;
-  problemLogs!: Table<ProblemLog, string>;
+  attempts!: Table<Attempt, number>;
   settings!: Table<UserSettings, string>;
-  coachReports!: Table<CoachReport, number>;
+  kv!: Table<KV, string>;
 
   constructor() {
     super('SDETrackerJavaDB');
+
+    // v1: the original app (one log per problem, overwritten on every save).
     this.version(1).stores({
       problems: 'id, sheetIndex, topic, subTopic, difficulty',
       problemLogs: 'problemId, completedAt, status, nextReviewDate',
       settings: 'id',
-      coachReports: '++id, createdAt'
+      coachReports: '++id, createdAt',
+    });
+
+    // v2: append-only attempts, local-day dates, Striver 180 catalogue, no cloud coach.
+    this.version(2)
+      .stores({
+        problems: 'id, n, module',
+        attempts: '++id, problemId, day',
+        settings: 'id',
+        kv: 'key',
+        problemLogs: null,
+        coachReports: null,
+      })
+      .upgrade(async tx => {
+        const oldProblems = await tx.table('problems').toArray();
+        const oldLogs = await tx.table('problemLogs').toArray();
+        const { attempts, unmapped } = convertLegacyLogs(oldLogs, oldProblems);
+        if (attempts.length) await tx.table('attempts').bulkAdd(attempts);
+        if (unmapped.length) await tx.table('kv').put({ key: 'legacyUnmapped', value: unmapped });
+
+        const oldSettings = await tx.table('settings').get('user_settings');
+        await tx.table('settings').put({ ...DEFAULT_SETTINGS, ...pickSettings(oldSettings) });
+
+        // Problems are re-seeded by syncSeed() right after open.
+        await tx.table('problems').clear();
+      });
+  }
+}
+
+export const db = new TrackerDB();
+
+// ─── Legacy (v1) conversion: used by the schema upgrade and by importing old backups ──
+
+interface LegacyLog {
+  problemId: string;
+  completedAt: string;
+  timeSpentMinutes?: number;
+  status?: string;
+  hintsViewedCount?: number;
+  notes?: string;
+}
+
+const slugFromUrl = (url: unknown) =>
+  typeof url === 'string' ? (url.match(/leetcode\.com\/problems\/([^/?#]+)/)?.[1] ?? null) : null;
+
+export function convertLegacyLogs(logs: LegacyLog[], legacyProblems: { id: string; leetcodeUrl?: string; title?: string }[]) {
+  const byLeetcode = new Map<string, Problem>();
+  const byTitle = new Map<string, Problem>();
+  for (const p of SEED_PROBLEMS) {
+    if (p.leetcodeSlug) byLeetcode.set(p.leetcodeSlug, p);
+    byTitle.set(p.title.toLowerCase().replace(/[^a-z0-9]/g, ''), p);
+  }
+  const attempts: Attempt[] = [];
+  const unmapped: LegacyLog[] = [];
+  for (const log of logs) {
+    const old = legacyProblems.find(p => p.id === log.problemId);
+    const target =
+      byLeetcode.get(slugFromUrl(old?.leetcodeUrl) ?? '') ??
+      byTitle.get((old?.title ?? '').toLowerCase().replace(/[^a-z0-9]/g, '')) ??
+      SEED_PROBLEMS.find(p => p.id === log.problemId);
+    const when = new Date(log.completedAt);
+    if (!target || isNaN(when.getTime())) {
+      unmapped.push(log);
+      continue;
+    }
+    const status: AttemptStatus = log.status === 'HESITANT' || log.status === 'BLOCKER' ? log.status : 'CLEAN';
+    attempts.push({
+      problemId: target.id,
+      kind: 'first',
+      day: localDay(when),
+      at: when.toISOString(),
+      status,
+      minutes: Math.max(0, Math.round(Number(log.timeSpentMinutes) || 0)),
+      hintsUsed: Math.max(0, Math.round(Number(log.hintsViewedCount) || 0)),
+      sawSolution: status === 'BLOCKER',
+      notes: typeof log.notes === 'string' ? log.notes : '',
     });
   }
+  return { attempts, unmapped };
 }
 
-export const db = new SDETDatabase();
-
-export async function initDatabase(): Promise<void> {
-  if (typeof window === 'undefined') return;
-
-  const problemCount = await db.problems.count();
-  if (problemCount === 0) {
-    console.log('Seeding Striver SDE Sheet problems into Dexie...');
-    await db.problems.bulkAdd(seedProblems as Problem[]);
-  } else {
-    // Keep problem metadata synced (e.g. updated video IDs) while preserving user logs
-    await db.problems.bulkPut(seedProblems as Problem[]);
-  }
-
-  const existingSettings = await db.settings.get('user_settings');
-  if (!existingSettings) {
-    await db.settings.put({
-      id: 'user_settings',
-      targetProblemsPerDay: 4,
-      startDate: new Date().toISOString(),
-      preferredLanguage: 'Java'
-    });
-  }
+function pickSettings(s: unknown): Partial<UserSettings> {
+  if (!s || typeof s !== 'object') return {};
+  const o = s as Record<string, unknown>;
+  const out: Partial<UserSettings> = {};
+  if (typeof o.hintLockMinutes === 'number' && o.hintLockMinutes >= 0 && o.hintLockMinutes <= 120) out.hintLockMinutes = Math.round(o.hintLockMinutes);
+  if (typeof o.includeStretch === 'boolean') out.includeStretch = o.includeStretch;
+  if (typeof o.lmStudioUrl === 'string' && o.lmStudioUrl) out.lmStudioUrl = o.lmStudioUrl;
+  if (typeof o.leetcodeUsername === 'string') out.leetcodeUsername = o.leetcodeUsername.trim();
+  return out;
 }
 
-export async function getUserSettings(): Promise<UserSettings> {
-  const current = await db.settings.get('user_settings');
-  if (current) return current;
-  const defaults: UserSettings = {
-    id: 'user_settings',
-    targetProblemsPerDay: 4,
-    startDate: new Date().toISOString(),
-    preferredLanguage: 'Java'
-  };
-  await db.settings.put(defaults);
-  return defaults;
+// ─── Startup ──────────────────────────────────────────────────────────────────
+
+let initPromise: Promise<void> | null = null;
+
+/** Idempotent and safe to call twice (React StrictMode mounts effects twice in dev). */
+export function initDatabase(): Promise<void> {
+  if (!initPromise) initPromise = doInit().catch(err => { initPromise = null; throw err; });
+  return initPromise;
 }
 
-export async function updateUserSettings(updated: Partial<UserSettings>): Promise<UserSettings> {
-  const current = await getUserSettings();
-  const merged: UserSettings = { ...current, ...updated, id: 'user_settings' };
-  await db.settings.put(merged);
-  return merged;
-}
-
-export async function saveProblemLog(log: ProblemLog): Promise<void> {
-  await db.problemLogs.put(log);
-}
-
-export async function deleteProblemLog(problemId: string): Promise<void> {
-  await db.problemLogs.delete(problemId);
-}
-
-export async function getProblemLog(problemId: string): Promise<ProblemLog | undefined> {
-  return await db.problemLogs.get(problemId);
-}
-
-export async function getAllLogs(): Promise<ProblemLog[]> {
-  return await db.problemLogs.toArray();
-}
-
-export async function getAllProblems(): Promise<Problem[]> {
-  return await db.problems.orderBy('sheetIndex').toArray();
-}
-
-export async function getCoachReports(): Promise<CoachReport[]> {
-  return await db.coachReports.reverse().sortBy('createdAt');
-}
-
-export async function saveCoachReport(report: Omit<CoachReport, 'id'>): Promise<number> {
-  const id = await db.coachReports.add(report as CoachReport);
-  return id as number;
-}
-
-export interface TodayQueueItem {
-  problem: Problem;
-  log?: ProblemLog;
-  isReviewDue: boolean;
-  reviewReason?: string;
-}
-
-export async function getTodayQueue(): Promise<{
-  queue: TodayQueueItem[];
-  targetCount: number;
-  dueCount: number;
-  solvedTodayCount: number;
-}> {
-  const settings = await getUserSettings();
-  const problems = await getAllProblems();
-  const logs = await getAllLogs();
-
-  const logMap = new Map<string, ProblemLog>();
-  logs.forEach(l => logMap.set(l.problemId, l));
-
-  const todayStr = new Date().toISOString().split('T')[0];
-
-  // 1. Find items solved today
-  const solvedToday = logs.filter(l => l.completedAt.startsWith(todayStr));
-  const solvedTodayCount = solvedToday.length;
-
-  // 2. Find problems due for spaced repetition
-  const reviewDueItems: TodayQueueItem[] = [];
-  for (const prob of problems) {
-    const log = logMap.get(prob.id);
-    if (log && log.nextReviewDate) {
-      const reviewDate = log.nextReviewDate.split('T')[0];
-      if (reviewDate <= todayStr) {
-        reviewDueItems.push({
-          problem: prob,
-          log,
-          isReviewDue: true,
-          reviewReason: log.status === 'BLOCKER' 
-            ? 'Blocked 3 days ago - time to solidify!' 
-            : 'Hesitant solve - review to achieve clean mastery'
-        });
-      }
-    }
-  }
-
-  // 3. Find unsolved problems to meet today's quota
-  const remainingQuota = Math.max(0, settings.targetProblemsPerDay - solvedTodayCount);
-  const newQueueItems: TodayQueueItem[] = [];
-
-  for (const prob of problems) {
-    if (newQueueItems.length >= remainingQuota) break;
-    const log = logMap.get(prob.id);
-    // If not solved at all, or solved today
-    if (!log) {
-      // Don't duplicate if already in review items
-      if (!reviewDueItems.some(r => r.problem.id === prob.id)) {
-        newQueueItems.push({
-          problem: prob,
-          isReviewDue: false
-        });
-      }
-    }
-  }
-
-  return {
-    queue: [...reviewDueItems, ...newQueueItems],
-    targetCount: settings.targetProblemsPerDay,
-    dueCount: reviewDueItems.length,
-    solvedTodayCount
-  };
-}
-
-export async function calculatePacingMetrics(): Promise<PacingMetrics> {
-  const settings = await getUserSettings();
-  const totalProblems = await db.problems.count();
-  const logs = await getAllLogs();
-
-  const totalSolved = logs.length;
-  const completionPercentage = totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
-
-  const todayStr = new Date().toISOString().split('T')[0];
-  const solvedTodayCount = logs.filter(l => l.completedAt.startsWith(todayStr)).length;
-
-  // Due for review count
-  const dueForReviewCount = logs.filter(l => {
-    if (!l.nextReviewDate) return false;
-    return l.nextReviewDate.split('T')[0] <= todayStr;
-  }).length;
-
-  // Calculate Streak
-  // Set of dates with at least 1 solve
-  const solveDates = new Set<string>();
-  logs.forEach(l => {
-    solveDates.add(l.completedAt.split('T')[0]);
-  });
-
-  let streak = 0;
-  const checkDate = new Date();
-  // If today has no solve, start checking from yesterday, or from today if solved
-  const checkTodayStr = checkDate.toISOString().split('T')[0];
-  if (!solveDates.has(checkTodayStr)) {
-    checkDate.setDate(checkDate.getDate() - 1);
-  }
-
-  while (true) {
-    const dStr = checkDate.toISOString().split('T')[0];
-    if (solveDates.has(dStr)) {
-      streak++;
-      checkDate.setDate(checkDate.getDate() - 1);
-    } else {
-      break;
-    }
-  }
-
-  // Velocity (problems per day)
-  const remainingProblems = Math.max(0, totalProblems - totalSolved);
-  const velocity = Math.max(1, settings.targetProblemsPerDay);
-  const daysNeeded = Math.ceil(remainingProblems / velocity);
-  
-  const estimatedDate = new Date();
-  estimatedDate.setDate(estimatedDate.getDate() + daysNeeded);
-  const estimatedCompletionDate = estimatedDate.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
-
-  return {
-    streakDays: streak,
-    totalSolved,
-    totalProblems,
-    completionPercentage,
-    estimatedCompletionDate,
-    dueForReviewCount,
-    solvedTodayCount,
-    todayTarget: settings.targetProblemsPerDay,
-    velocityPerDay: velocity
-  };
-}
-
-export async function exportDatabaseJSON(): Promise<string> {
-  const problems = await db.problems.toArray();
-  const logs = await db.problemLogs.toArray();
-  const settings = await db.settings.toArray();
-  const reports = await db.coachReports.toArray();
-
-  const data = {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    problems,
-    problemLogs: logs,
-    settings,
-    coachReports: reports
-  };
-
-  return JSON.stringify(data, null, 2);
-}
-
-export async function importDatabaseJSON(jsonStr: string): Promise<{ success: boolean; message: string }> {
-  try {
-    const data = JSON.parse(jsonStr);
-    if (!data.problems || !Array.isArray(data.problems)) {
-      throw new Error('Invalid backup file: problems array missing');
-    }
-
-    await db.transaction('rw', [db.problems, db.problemLogs, db.settings, db.coachReports], async () => {
+async function doInit() {
+  await db.open();
+  await db.transaction('rw', db.problems, db.settings, db.kv, async () => {
+    const seeded = await db.kv.get('sheetVersion');
+    const count = await db.problems.count();
+    // Only touch the catalogue when the bundled sheet changes (not on every load).
+    if (seeded?.value !== SHEET_VERSION || count !== SEED_PROBLEMS.length) {
       await db.problems.clear();
-      await db.problems.bulkAdd(data.problems);
-
-      if (data.problemLogs && Array.isArray(data.problemLogs)) {
-        await db.problemLogs.clear();
-        await db.problemLogs.bulkAdd(data.problemLogs);
-      }
-
-      if (data.settings && Array.isArray(data.settings) && data.settings.length > 0) {
-        await db.settings.clear();
-        await db.settings.bulkAdd(data.settings);
-      }
-
-      if (data.coachReports && Array.isArray(data.coachReports)) {
-        await db.coachReports.clear();
-        await db.coachReports.bulkAdd(data.coachReports);
-      }
-    });
-
-    return { success: true, message: `Successfully restored ${data.problems.length} problems and ${data.problemLogs?.length || 0} logs.` };
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Unknown import error';
-    return { success: false, message: msg };
-  }
+      await db.problems.bulkAdd(SEED_PROBLEMS);
+      await db.kv.put({ key: 'sheetVersion', value: SHEET_VERSION });
+    }
+    const s = await db.settings.get('user_settings');
+    if (!s) await db.settings.put(DEFAULT_SETTINGS);
+  });
 }
 
-export async function resetToSeedData(): Promise<void> {
-  await db.transaction('rw', [db.problems, db.problemLogs, db.settings, db.coachReports], async () => {
-    await db.problems.clear();
-    await db.problems.bulkAdd(seedProblems as Problem[]);
-    await db.problemLogs.clear();
-    await db.coachReports.clear();
-    await db.settings.clear();
-    await db.settings.put({
-      id: 'user_settings',
-      targetProblemsPerDay: 4,
-      startDate: new Date().toISOString(),
-      preferredLanguage: 'Java'
-    });
+// ─── Settings ────────────────────────────────────────────────────────────────
+
+export async function getSettings(): Promise<UserSettings> {
+  return { ...DEFAULT_SETTINGS, ...(await db.settings.get('user_settings')) };
+}
+
+export async function updateSettings(patch: Partial<UserSettings>): Promise<void> {
+  const current = await getSettings();
+  await db.settings.put({ ...current, ...pickSettings({ ...current, ...patch }), id: 'user_settings' });
+}
+
+// ─── Attempts ────────────────────────────────────────────────────────────────
+
+export async function addAttempt(a: Omit<Attempt, 'id'>): Promise<number> {
+  return db.attempts.add(a as Attempt);
+}
+
+/** Edit notes/status/minutes of a past attempt. The day never changes, so history stays honest. */
+export async function editAttempt(id: number, patch: Pick<Attempt, 'status' | 'minutes' | 'hintsUsed' | 'notes' | 'sawSolution'>): Promise<void> {
+  await db.attempts.update(id, patch);
+}
+
+export async function deleteAttempt(id: number): Promise<void> {
+  await db.attempts.delete(id);
+}
+
+// ─── Focus session ───────────────────────────────────────────────────────────
+
+export async function getSession(): Promise<FocusSession | undefined> {
+  return (await db.kv.get('session'))?.value as FocusSession | undefined;
+}
+
+export async function saveSession(s: FocusSession | null): Promise<void> {
+  if (s) await db.kv.put({ key: 'session', value: s });
+  else await db.kv.delete('session');
+}
+
+// ─── Contest rating cache ────────────────────────────────────────────────────
+
+export async function getCachedRating(): Promise<ContestRating | undefined> {
+  return (await db.kv.get('contestRating'))?.value as ContestRating | undefined;
+}
+
+export async function cacheRating(r: ContestRating): Promise<void> {
+  await db.kv.put({ key: 'contestRating', value: r });
+}
+
+// ─── Backup / restore ────────────────────────────────────────────────────────
+
+export interface BackupFile {
+  app: 'sde-tracker';
+  version: 2;
+  exportedAt: string;
+  sheetVersion: number;
+  attempts: Attempt[];
+  settings: UserSettings;
+  /** Old v1 logs for problems that aren't in Striver 180 (kept, never silently dropped). */
+  legacyUnmapped?: unknown[];
+}
+
+export async function getLegacyUnmapped(): Promise<unknown[]> {
+  const v = (await db.kv.get('legacyUnmapped'))?.value;
+  return Array.isArray(v) ? v : [];
+}
+
+export async function exportBackup(): Promise<BackupFile> {
+  const legacy = await getLegacyUnmapped();
+  return {
+    app: 'sde-tracker',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    sheetVersion: SHEET_VERSION,
+    attempts: await db.attempts.toArray(),
+    settings: await getSettings(),
+    ...(legacy.length ? { legacyUnmapped: legacy } : {}),
+  };
+}
+
+export function downloadJSON(data: unknown, filename: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function downloadBackup(label = 'backup') {
+  downloadJSON(await exportBackup(), `sde-tracker-${label}-${localDay()}.json`);
+}
+
+const STATUSES: AttemptStatus[] = ['CLEAN', 'HESITANT', 'BLOCKER'];
+
+function validAttempt(x: unknown, known: Set<string>): Attempt | null {
+  if (!x || typeof x !== 'object') return null;
+  const o = x as Record<string, unknown>;
+  if (typeof o.problemId !== 'string' || !known.has(o.problemId)) return null;
+  if (!isValidDay(o.day) || typeof o.at !== 'string' || isNaN(Date.parse(o.at))) return null;
+  if (!STATUSES.includes(o.status as AttemptStatus)) return null;
+  return {
+    problemId: o.problemId,
+    kind: o.kind === 'resolve' ? 'resolve' : 'first',
+    day: o.day,
+    at: o.at,
+    status: o.status as AttemptStatus,
+    minutes: Math.max(0, Math.min(1440, Math.round(Number(o.minutes) || 0))),
+    hintsUsed: Math.max(0, Math.min(2, Math.round(Number(o.hintsUsed) || 0))),
+    sawSolution: o.sawSolution === true,
+    notes: typeof o.notes === 'string' ? o.notes.slice(0, 20_000) : '',
+  };
+}
+
+export interface ParsedImport {
+  attempts: Attempt[];
+  settings: Partial<UserSettings>;
+  skipped: number;
+  format: 'v2' | 'v1-legacy';
+}
+
+/** Parse and validate without writing anything, so the UI can show "replace N attempts?" first. */
+export function parseBackup(text: string): ParsedImport {
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error('That file is not valid JSON.');
+  }
+  if (!data || typeof data !== 'object') throw new Error('Unrecognised backup file.');
+  const known = new Set(SEED_PROBLEMS.map(p => p.id));
+
+  if (data.app === 'sde-tracker' && data.version === 2 && Array.isArray(data.attempts)) {
+    const attempts = (data.attempts as unknown[]).map(a => validAttempt(a, known)).filter((a): a is Attempt => !!a);
+    return { attempts, settings: pickSettings(data.settings), skipped: data.attempts.length - attempts.length, format: 'v2' };
+  }
+  if (Array.isArray(data.problemLogs)) {
+    const { attempts, unmapped } = convertLegacyLogs(data.problemLogs as LegacyLog[], (data.problems as never[]) ?? []);
+    return { attempts, settings: {}, skipped: unmapped.length, format: 'v1-legacy' };
+  }
+  throw new Error('Unrecognised backup file: expected an SDE Tracker export.');
+}
+
+export async function applyImport(parsed: ParsedImport): Promise<void> {
+  await db.transaction('rw', db.attempts, db.settings, db.kv, async () => {
+    await db.attempts.clear();
+    // Drop ids from the file so Dexie assigns fresh ones.
+    await db.attempts.bulkAdd(parsed.attempts.map(a => ({ ...a, id: undefined })));
+    if (Object.keys(parsed.settings).length) {
+      const current = await getSettings();
+      await db.settings.put({ ...current, ...parsed.settings, id: 'user_settings' });
+    }
+    await db.kv.delete('session');
+  });
+}
+
+export async function resetProgress(): Promise<void> {
+  await db.transaction('rw', db.attempts, db.kv, async () => {
+    await db.attempts.clear();
+    await db.kv.delete('session');
   });
 }

@@ -1,50 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveBaseUrl } from '@/lib/lmstudio';
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const rawBaseUrl = searchParams.get('baseUrl') || 'http://127.0.0.1:1234/v1';
-  // Strip trailing slash if present
-  const baseUrl = rawBaseUrl.replace(/\/+$/, '');
+  let baseUrl: string;
+  try {
+    baseUrl = resolveBaseUrl(req.nextUrl.searchParams.get('baseUrl'));
+  } catch (err) {
+    return NextResponse.json({ connected: false, models: [], error: (err as Error).message });
+  }
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-
-    const res = await fetch(`${baseUrl}/models`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!res.ok) {
-      return NextResponse.json({
-        connected: false,
-        error: `LM Studio returned status ${res.status}`,
-        models: [],
-      });
-    }
-
+    const res = await fetch(`${baseUrl}/models`, { signal: AbortSignal.timeout(4000), cache: 'no-store' });
+    if (!res.ok) return NextResponse.json({ connected: false, models: [], error: `LM Studio returned ${res.status}` });
     const data = await res.json();
-    const models: string[] = Array.isArray(data?.data)
-      ? data.data.map((m: { id?: string }) => m.id || '').filter(Boolean)
-      : [];
-
-    return NextResponse.json({
-      connected: true,
-      baseUrl,
-      models,
-      defaultModel: models.length > 0 ? models[0] : undefined,
-    });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Connection failed';
-    return NextResponse.json({
-      connected: false,
-      error: `Could not connect to LM Studio at ${baseUrl}: ${message}`,
-      models: [],
-    });
+    const models: string[] = Array.isArray(data?.data) ? data.data.map((m: { id?: string }) => m.id ?? '').filter(Boolean) : [];
+    return NextResponse.json({ connected: true, models });
+  } catch (err) {
+    return NextResponse.json({ connected: false, models: [], error: `Can't reach LM Studio at ${baseUrl}: ${(err as Error).message}` });
   }
 }

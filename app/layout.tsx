@@ -1,38 +1,34 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
-import "katex/dist/katex.min.css";
-
-const inter = Inter({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+import type { Metadata, Viewport } from 'next';
+// Self-hosted fonts (design language §4): no Google Fonts calls at runtime.
+import '@fontsource-variable/mona-sans/standard.css';
+import '@fontsource/open-runde/latin-400.css';
+import '@fontsource/open-runde/latin-500.css';
+import '@fontsource/open-runde/latin-600.css';
+import '@fontsource/open-runde/latin-700.css';
+import '@fontsource-variable/jetbrains-mono/index.css';
+import './globals.css';
+import { THEME_BOOT_SCRIPT } from '@/lib/theme';
 
 export const metadata: Metadata = {
-  title: "SDE Tracker: Java Edition | Striver SDE Sheet Companion",
-  description: "Mission control for Striver's SDE Sheet (180+ problems). Local-first persistence, 3-tier progressive hints, 10-second rapid logging, automated spaced repetition, and Gemini 2.5 Flash AI coaching.",
+  title: 'SDE Tracker · Striver 180 in Java',
+  description: "Local-first practice tracker for Striver's 180 DSA patterns: 25-minute solo attempts, gated hints, and a from-scratch re-solve two days later.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#EEE8DA' },
+    { media: '(prefers-color-scheme: dark)', color: '#121110' },
+  ],
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} bg-[#000000] text-[#ededed] font-sans antialiased min-h-screen selection:bg-zinc-800 selection:text-white`}
-        suppressHydrationWarning
-      >
-        {children}
-      </body>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <head>
+        {/* Sets data-theme before first paint, so there's no flash of the wrong theme. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

@@ -1,4 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+﻿# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /node_modules
@@ -18,7 +18,7 @@
 /out/
 
 # production
-/build
+# (build/ holds the desktop icon; it is committed)
 
 # misc
 .DS_Store
@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# desktop build output
+/release/

@@ -1,280 +1,94 @@
-# SDE Tracker: Java Edition (v0.1-beta)
+# SDE Tracker — Striver 180 in Java
 
-<p align="center">
-  <strong>The high-velocity, distraction-free companion app for conquering Striver's SDE Sheet (180+ problems) in Java.</strong><br>
-  Built with Next.js 15, pitch-black Cursor aesthetics, an in-app multi-pane solver, PiP video editorials, and offline LM Studio AI tutoring.
-</p>
+A local-first practice tracker for [Striver's 180 – Master DSA Patterns](https://takeuforward.org/prep-hub/strivers-180-master-dsa-patterns), built around one method:
 
-<p align="center">
-  <a href="https://github.com/AgastyaShenoy/java-dsa-learner/releases/tag/v0.1-beta"><img src="https://img.shields.io/badge/release-v0.1--beta-white?style=flat-square" alt="Version"></a>
-  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-15.5.25-black?style=flat-square&logo=next.js" alt="Next.js"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.0+-black?style=flat-square&logo=typescript" alt="TypeScript"></a>
-  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-v4-black?style=flat-square&logo=tailwindcss" alt="Tailwind CSS"></a>
-  <a href="https://dexie.com/"><img src="https://img.shields.io/badge/Storage-Dexie.js_(IndexedDB)-black?style=flat-square" alt="Dexie.js"></a>
-  <a href="https://lmstudio.ai/"><img src="https://img.shields.io/badge/Local_AI-LM_Studio-black?style=flat-square" alt="LM Studio"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-black?style=flat-square" alt="License"></a>
-</p>
+1. **Try alone for 25 minutes.** One button opens today's problem on LeetCode (or takeuforward when there's no free LeetCode match) and starts a timer.
+2. **Then hints, one at a time.** Hint 1 unlocks after 25 minutes of solo time. Each hint first asks what you've tried. Hints nudge; they don't solve.
+3. **The solution only after both hints**, behind an explicit "I made a real attempt" confirm.
+4. **Re-solve from scratch 2 days later.** Every first attempt schedules a re-solve. A clean re-solve (no hints) means mastered; anything else comes back in another 2 days.
 
----
+No daily targets, no streaks, no deadlines. You go at your own pace.
 
-## 💡 Why SDE Tracker?
+## Features
 
-Grinding Data Structures & Algorithms for software engineering interviews often leads to **cognitive fragmentation**:
-1. You open LeetCode in one tab, Striver's video editorial in another, an IDE in a third, and ChatGPT in a fourth.
-2. Constant alt-tabbing ruins deep work, breaks your mental invariant models, and causes friction in tracking pacing.
-3. Spreadsheets and static checklists lack real-time solve telemetry, stopwatch automation, spaced repetition, and Java-specific edge-case warnings.
+- **179 problems** in 17 modules (arrays, hashing, binary search, sliding window, recursion, linked lists, stacks, greedy, heaps, trees, BSTs, graphs, DP, tries, strings, bits), grouped by pattern. 21 niche ones (KMP, Kosaraju, Floyd–Warshall…) are marked *stretch* and skipped by "Next up" unless you turn them on.
+- **Today view:** one "Open today's problem" button, then due re-solves, what's next and upcoming re-solves, with quiet stats (attempted, mastered, this week).
+- **Focus session:** a wall-clock timer that survives reloads, closed tabs and background throttling, pause for breaks, the hint ladder, and minimize to a navbar pill.
+- **Floating timer (Chrome / Edge):** Start opens a small always-on-top window (Document Picture-in-Picture) with the timer, pause, hints and finish buttons. Its first button opens LeetCode in its own full-size window, where your normal LeetCode login works. It takes two clicks because Chrome lets one click open only one new window. In other browsers, Start opens LeetCode directly and the timer stays in the app.
+- **Full attempt history:** every attempt is its own record, so editing notes never rewrites dates, and attempts can be deleted.
+- **Local AI tutor (LM Studio):** in hint-only mode during an attempt it gives one nudge per reply and no code, and it opens up once you've unlocked the solution or are reviewing a problem you've already done.
+- **LeetCode contest rating tile** (optional; uses LeetCode's unofficial public API, cached for 6 hours).
+- **Backup and restore:** validated JSON import with a confirm step and an automatic backup before anything is replaced.
 
-**SDE Tracker** solves this by unifying your entire preparation workflow into a single, cohesive, pitch-black workspace.
-
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           SDE TRACKER WORKSPACE                                 │
-├──────────────────────────────────────┬──────────────────────────────────────────┤
-│         IN-APP LEETCODE SOLVER       │         AUXILIARY COPILOT PANE           │
-│                                      │                                          │
-│  - Problem Statement                 │  [Scratchpad] [Hints] [Video] [Local AI] │
-│  - Integrated Code Editor            │                                          │
-│  - Direct Submission Engine          │  • Tier 1: Core Mathematical Invariant   │
-│  - Monospace Stopwatch Timer         │  • Tier 2: Algorithmic Blueprint         │
-│    (00:24:15 · [Pause] [+5m] [Reset])│  • Tier 3: Java Gotchas (long, Deque)    │
-│                                      │  • Floating PiP Video Walkthrough        │
-│                                      │  • Local LM Studio Markdown Assistant    │
-├──────────────────────────────────────┴──────────────────────────────────────────┤
-│  POST-SOLVE: 10s Reflection -> Auto-Forward Time -> 3-Day Spaced Repetition     │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## ✨ Features at a Glance
-
-### 1. In-App Multi-Pane Solver
-- **Zero Alt-Tabbing**: Embeds LeetCode problems directly into a flexible split-view modal.
-- **Adjustable Pane Presets**: Toggle between **50:50 Balanced**, **60:40 Widescreen**, or **Full Screen Focus** with smooth layout transitions.
-- **Embedded Stopwatch**: Track solve duration in real time with quick Pause/Resume, Reset, and `+5m` bump controls. Elapsed minutes are automatically forwarded to your post-solve reflection log.
-- **Iframe Bypass Handling**: Built-in intelligent detection for LeetCode's security headers, providing 1-click fallback and direct deep links.
-
-### 2. Picture-in-Picture (PiP) Video Walkthroughs
-- **Floating Video Player**: Detach Striver's YouTube editorial into a draggable, minimizable corner player while keeping LeetCode and your scratchpad active.
-- **Privacy-Enhanced Embeds**: Streams via `youtube-nocookie.com` with strict referrer policies and direct external fallbacks.
-
-### 3. Offline Local AI Tutor (LM Studio)
-- **100% Private & Free**: Streams responses directly from your local hardware using [LM Studio](https://lmstudio.ai/) (`http://127.0.0.1:1234/v1`).
-- **Context-Aware Prompts**: Automatically injects current problem details, difficulty, tags, and Java requirements into the conversation.
-- **Mathematical LaTeX & Syntax Highlighting**:
-  - Full **KaTeX** math engine renders complexities like $\mathcal{O}(N \log N)$ and space bounds $\Omega(K)$.
-  - **Prism.js** token highlighting with one-click copy for Java, Python, C++, and pseudocode.
-- **Quick Action Chips**: One-click prompts for *"Explain Invariant"*, *"Java Pitfalls"*, *"Optimize Space"*, and *"Step-by-step Dry Run"*.
-
-### 4. 3-Tier Progressive Hints & Java Gotchas
-- **Tier 1 (Core Intuition)**: High-level mathematical perspective without spoiling implementation details.
-- **Tier 2 (Algorithm & Data Structure)**: Optimal two-pointer, monotonic stack, DP transition, or graph representation.
-- **Tier 3 (Java Gotchas & Edge Cases)**: Critical Java-specific edge cases:
-  - Primitive integer overflow: casting `(long) a * b` vs `long sum = a * b`.
-  - Preferring `ArrayDeque` over legacy synchronized `java.util.Stack`.
-  - `PriorityQueue` comparator subtraction overflow (`(a, b) -> a - b` vs `Integer.compare(a, b)`).
-  - String manipulation overhead (`StringBuilder` vs immutability bottlenecks).
-
-### 5. 10-Second Post-Solve Reflection & Spaced Repetition
-- Prompted immediately after completing a problem.
-- Automatically captures elapsed time from the stopwatch.
-- Logs difficulty perception: `Trivial`, `Clean`, `Hesitant`, or `Blocker`.
-- **Automated Spaced Repetition**: Problems rated `Hesitant` or `Blocker` are automatically scheduled for a mandatory 3-day spaced review in your daily mission queue.
-- Lightweight confetti animation celebrates completed milestones.
-
-### 6. Mission Control & Dynamic Pacing
-- **Dynamic Daily Targets**: Adjust daily problem quotas on the fly (`[-]` / `[+]`).
-- **Pacing Telemetry**: Visual velocity charts, streak trackers, completion percentages, and estimated finish dates.
-- **Review Queue**: Dedicated priority queue for spaced repetition and flagged problems.
-
-### 7. Interactive Striver's Sheet Roadmap
-- Complete **180+ problems** across all 26 topics (Arrays, Linked Lists, Greedy, Binary Trees, BST, Graphs, Dynamic Programming, Trie, Strings).
-- Instant search and multi-criteria filters (by difficulty, status, day, or keyword).
-
-### 8. Cloud AI Coach (Optional Gemini 2.5 Flash)
-- Automated weekly diagnostics analyzing solve velocity, difficulty distribution, and streak health.
-- Identifies Java architectural blind spots and generates actionable calibration recommendations.
-
-### 9. Local-First & Zero Setup
-- **100% Client-Side Storage**: Backed by **Dexie.js (IndexedDB)**.
-- No remote database, no account creation, and no subscription fees.
-- Full **Export / Import JSON** feature to easily backup and migrate your progress across machines.
-
----
-
-## 🎨 Design Philosophy: Pitch-Black Cursor UI
-
-SDE Tracker embraces the design language of the **Cursor IDE / Cursor website**:
-- **Pure Black Canvas**: `#000000` pitch-black backgrounds for minimal OLED power consumption and zero eye strain.
-- **Subtle Surface Hierarchy**: Soft zinc borders (`#27272a` / `#18181b`) and layered translucent backdrops (`bg-zinc-950/80 backdrop-blur-md`).
-- **Precision Typography**: Clean geometric typography using `Geist Sans`, `Inter`, and `JetBrains Mono`.
-- **Restrained Color Palette**: Intentional, functional color accents (Emerald for solves, Amber for reviews, Violet for AI assistance) without visual clutter.
-
----
-
-## 🛠️ Tech Stack & Architecture
-
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Framework** | Next.js 15.5 (App Router) | High-performance React 19 architecture with Server & Client components |
-| **Language** | TypeScript 5+ | End-to-end type safety for problem metadata, solve records, and telemetry |
-| **Styling** | Tailwind CSS v4 | Utility-first styling with custom Cursor pitch-black tokens |
-| **Local Database** | Dexie.js 4.0 (IndexedDB) | Reactive, zero-latency browser storage via `dexie-react-hooks` |
-| **Local AI** | LM Studio (OpenAI API spec) | Offline LLM inference with Server-Sent Events (SSE) streaming |
-| **Cloud AI** | Google Gemini 2.5 Flash SDK | Deep diagnostic problem analysis and weekly training reviews |
-| **Syntax Highlighting**| Prism.js | High-fidelity multi-language code block rendering |
-| **Math Engine** | KaTeX + Rehype / Remark | High-speed LaTeX formula rendering for algorithmic complexities |
-| **Icons & FX** | Lucide React + Canvas Confetti | Minimalist SVG iconography and milestone celebrations |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Node.js**: `v18.18+` or `v20+` / `v24+` installed ([Download Node.js](https://nodejs.org/))
-- **npm** or **pnpm** / **yarn**
-
-### 1. Clone & Install
+## Run it
 
 ```bash
-# Clone the repository
-git clone https://github.com/AgastyaShenoy/java-dsa-learner.git
-cd java-dsa-learner
-
-# Install dependencies
 npm install
+npm run dev        # http://localhost:3000
 ```
 
-### 2. Run the Development Server
+Data lives in your browser's IndexedDB. Export a backup from **Settings** now and then.
+
+### Desktop app (Windows)
+
+Download `SDE-Tracker-Setup-x.y.z.exe` from [Releases](https://github.com/AgastyaShenoy/java-dsa-learner/releases/latest) and run it. It installs for your user only (no admin prompt). The installer isn't code-signed, so Windows SmartScreen may warn you: click **More info → Run anyway**.
+
+- **Updates:** the app checks GitHub Releases on launch and every 6 hours, downloads a new version in the background, and offers to restart. Your progress is kept.
+- **Start** opens the problem in your normal browser (where you're logged in to LeetCode) and a small always-on-top timer window, with pause, hints and the finish buttons.
+- **Your data** is the app's own, separate from the browser version. To move it over, use **Settings → Export backup** in the browser, then **Restore from backup** in the app.
+
+How it's built: `electron/main.js` starts the Next.js app's standalone server (`output: "standalone"`) on `127.0.0.1:31780` with Electron's own Node, and opens a window on it. The port is fixed because IndexedDB is tied to the origin. `electron/preload.js` exposes a small `window.desktop` bridge: open a link in the browser, open or close the timer window, and finish the attempt from it. Updates use `electron-updater` with the GitHub provider.
 
 ```bash
-npm run dev
+npm run desktop:dev   # Electron window on top of `next dev`
+npm run dist          # build the installer into release/ (no upload)
+GH_TOKEN=... npm run release   # build and publish a GitHub release (bump "version" first)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser. The app is ready to use immediately—no database setup or sign-in required!
+### Local AI (optional)
 
-### 3. Production Build
+Install [LM Studio](https://lmstudio.ai/), load a coding model (e.g. Qwen2.5-Coder-7B-Instruct), and start the server from **Developer → Start Server** (default `http://127.0.0.1:1234/v1`). For safety the app only talks to LM Studio on this machine. To use another host on your LAN, start the app with `LMSTUDIO_ALLOW_REMOTE=1`.
 
-```bash
-# Create optimized production build
-npm run build
+## Look
 
-# Start production server
-npm run start
+Styled with the shared "Spray & Paper" design language (`home base/design-language.md`, v1.2). The page is a pure black desk (OLED-friendly) with everything printed straight onto it in paper-white ink. Paper only appears as small textured scraps: number tags, a sticky note for the attempt in progress, and masking tape.
+
+The controls are desk objects:
+- **Main action:** Dymo label tape.
+- **Secondary actions:** strips of masking tape.
+- **Choices:** circled in pink marker.
+- **Current tab:** a yellow highlighter swipe.
+- **Icon buttons:** turn into round stickers on hover.
+
+Hints start as dashed outlines and fill in as they unlock. There's also a newsprint light theme (Settings → Look).
+
+Fonts are self-hosted from npm: Mona Sans, Open Runde and JetBrains Mono. The spray font, Sister Spray, is free for personal use only, so it's never shipped: the app uses it when it's installed on the machine, and otherwise the spray headings fall back to heavy, wide Mona Sans.
+
+## How it works
+
+```
+app/page.tsx                 client-only entry (IndexedDB is browser-only)
+components/AppShell.tsx      live Dexie queries -> derived state -> views
+lib/db.ts                    Dexie schema (v2: problems, attempts, settings, kv) + v1 migration, backup/restore
+lib/progress.ts              pure scheduling: phase, next re-solve day, today's plan, stats
+lib/session.ts               focus session: wall-clock timer, hint gate, practice window
+lib/float.ts                 floating timer (Document Picture-in-Picture) helpers
+lib/theme.ts                 dark / light theme choice (localStorage, set before first paint)
+lib/dates.ts                 LOCAL calendar days (never UTC; IST would roll over at 05:30)
+lib/lmstudio.ts              LM Studio URL allow-list + tutor system prompt
+app/api/local-ai/*           streaming proxy to LM Studio (aborts propagate)
+app/api/leetcode/rating      contest rating from LeetCode GraphQL
+data/striver180.json         the shipped catalogue (built, don't edit by hand)
+scripts/fetch-striver180.mjs re-scrapes the sheet -> data/striver180.raw.json
+scripts/build-sheet.mjs      raw + data/striver180.hints.json -> data/striver180.json
 ```
 
----
+**Data flow:** the only stored progress is the append-only `attempts` table. Each problem's state (new, learning or mastered, plus its next re-solve day) is computed from its attempts on every render, so there's no second copy to drift out of sync. The UI subscribes with `useLiveQuery`, so any write re-renders every view, and `useToday()` re-computes at local midnight and whenever the tab becomes visible again.
 
-## 🤖 Setting Up Local AI (LM Studio)
+**Updating the sheet:** run `node scripts/fetch-striver180.mjs`, update `data/striver180.hints.json` for any new problems, bump `SHEET_VERSION` in `scripts/build-sheet.mjs`, then run `node scripts/build-sheet.mjs`. Existing installs re-seed the catalogue on next load. Attempts are untouched.
 
-You can run your AI tutor completely offline with zero API costs:
+## Credits
 
-```
-┌──────────────┐          HTTP / SSE           ┌────────────────────────┐
-│  SDE Tracker │ ────────────────────────────> │  LM Studio             │
-│  (Next.js)   │ <──────────────────────────── │  (http://127.0.0.1:1234)│
-└──────────────┘    Real-time Token Stream     └────────────────────────┘
-```
+Problem selection, ordering, videos and editorials: [Striver / takeUforward](https://takeuforward.org/). Hints and Java notes in `data/striver180.hints.json` are original to this project. Not affiliated with takeUforward or LeetCode.
 
-1. **Install LM Studio**: Download from [lmstudio.ai](https://lmstudio.ai/) (macOS, Windows, or Linux).
-2. **Download a Recommended Coding Model**:
-   - `Qwen2.5-Coder-7B-Instruct` (Recommended: outstanding for Java DSA & complexity proofs)
-   - `DeepSeek-R1-Distill-Qwen-7B` / `8B` (Exceptional step-by-step reasoning)
-   - `Meta-Llama-3.1-8B-Instruct`
-3. **Start the Local Server**:
-   - Click the **Developer / Local Server** tab (`<->` icon on the left).
-   - Select your downloaded model and click **Start Server**.
-   - Default port is `1234` (`http://127.0.0.1:1234`).
-4. **Chat**:
-   - Open SDE Tracker and click the **Local AI** tab in the top navigation or within the solver modal.
-   - The indicator will display `Local Live` with a green badge. You're ready to chat!
-
----
-
-## ⚙️ Optional Cloud AI: Gemini 2.5 Flash Coach
-
-To enable automated weekly diagnostic coaching reports via Google Gemini:
-
-1. Obtain a free Gemini API key from [Google AI Studio](https://aistudio.google.com/).
-2. Click the **Settings** gear icon in the SDE Tracker navbar.
-3. Paste your API key into the **Gemini API Key** field and click **Save Settings** (stored securely in local IndexedDB).
-4. Alternatively, add it to `.env.local`:
-   ```bash
-   NEXT_PUBLIC_GEMINI_API_KEY="your_api_key_here"
-   ```
-
----
-
-## 📂 Project Directory Structure
-
-```text
-java-dsa-learner/
-├── app/
-│   ├── api/
-│   │   ├── ai-coach/route.ts      # Cloud Gemini diagnostic endpoint
-│   │   └── local-ai/route.ts      # LM Studio proxy & SSE streaming handler
-│   ├── globals.css                # Cursor pitch-black styling & KaTeX/Prism imports
-│   ├── layout.tsx                 # Root layout with font definitions & metadata
-│   └── page.tsx                   # Main entry point mounting AppShell
-├── components/
-│   ├── AICoach/                   # Weekly diagnostic reports & AI coach view
-│   ├── EmbeddedLeetCode/
-│   │   └── EmbeddedLeetCodeModal.tsx # Multi-pane solver, stopwatch, PiP & hints
-│   ├── LocalAI/
-│   │   ├── LocalAIChatDrawer.tsx  # Slide-over chat drawer with prompt chips
-│   │   └── MarkdownRenderer.tsx   # KaTeX LaTeX math & Prism.js syntax renderer
-│   ├── MissionControl/            # Target header, queue cards, velocity telemetry
-│   ├── PostSolveModal/            # 10s reflection modal with spaced repetition
-│   ├── ResourceDrawer/            # 3-tier hints & Java gotchas drawer
-│   ├── Roadmap/                   # 180+ problems interactive sheet view
-│   ├── AppShell.tsx               # Main app state coordinator
-│   ├── Navbar.tsx                 # Navigation bar, streak badge & status indicators
-│   └── SettingsModal.tsx          # Export/Import JSON & API configuration
-├── data/
-│   └── striverSheet.json          # Curated 180+ Striver SDE problems dataset
-├── lib/
-│   ├── db.ts                      # Dexie.js IndexedDB schema & CRUD operations
-│   └── gemini.ts                  # Gemini 2.5 Flash client setup
-├── types/
-│   └── index.ts                   # TypeScript interfaces (Problem, Solve, Target)
-├── LICENSE                        # MIT License
-├── package.json
-└── README.md
-```
-
----
-
-## 💾 Data Backup & Portability
-
-Your data is stored 100% locally in your browser's IndexedDB. To ensure your progress is never lost:
-- Open **Settings** (gear icon in the top right).
-- Click **Export Backup (JSON)** to download a complete snapshot of your solves, notes, and targets.
-- To restore or transfer to a different computer or browser, click **Import Backup (JSON)**.
-
----
-
-## 🗺️ Roadmap & Upcoming Milestones
-
-- [x] **v0.1-beta**: Initial release with multi-pane solver, PiP video, LM Studio integration, KaTeX math, Prism syntax highlighting, and local Dexie persistence.
-- [ ] **v0.2**: Offline Java syntax linter and interactive code execution runner.
-- [ ] **v0.3**: Anki deck (.apkg) export for spaced repetition cards.
-- [ ] **v0.4**: Peer challenge rooms and collaborative whiteboard mode.
-
----
-
-## 🤝 Contributing
-
-Contributions, feedback, and issue reports are very welcome!
-1. Fork the Project: `git checkout -b feature/AmazingFeature`
-2. Commit your Changes: `git commit -m 'feat: Add some AmazingFeature'`
-3. Push to the Branch: `git push origin feature/AmazingFeature`
-4. Open a **Pull Request**.
-
----
-
-## 📜 License & Disclaimers
-
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
-
-> *Disclaimer: Problem descriptions, curation, and video tutorials are attributed to [Striver (Take U Forward)](https://takeuforward.org/) and [LeetCode](https://leetcode.com/). This open-source companion tool is independently developed to improve study productivity.*
+MIT licensed.

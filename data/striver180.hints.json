@@ -1,0 +1,2329 @@
+[
+ {
+  "n": 1,
+  "difficulty": "Easy",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "The answer appears more than half the time. If you paired each occurrence of it against a different element, could every copy of it get cancelled out?",
+   "Try a 'voting' idea: keep one candidate and a counter that rises on a match and falls on a mismatch. What should happen when the counter reaches zero?"
+  ],
+  "javaNote": "If you count with a HashMap<Integer,Integer>, compare counts with intValue() or equals(), never ==; Integer caching makes == silently fail for values above 127."
+ },
+ {
+  "n": 2,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Brute force re-sums every subarray. When you move one step right, when is the sum you carried so far actually hurting the subarray ending here?",
+   "Track the best sum of a subarray that must end at the current index, plus a global best. When is that running sum no longer worth keeping?"
+  ],
+  "javaNote": "Initialize the best with nums[0] or Integer.MIN_VALUE, not 0, so all-negative arrays work. For large inputs use long sums to avoid int overflow."
+ },
+ {
+  "n": 3,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "How many distinct values can each appear more than n/3 times? That upper bound tells you how many candidates you ever need to remember.",
+   "Can a cancellation-style vote work with more than one candidate slot? Cancellation can leave false survivors, so how would you confirm each one really clears n/3?"
+  ],
+  "javaNote": "Guard so both candidates never hold the same value: check equality with the existing candidate before reusing a zero-count slot, and recount in a second pass."
+ },
+ {
+  "n": 4,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Unlike sums, multiplying by a negative flips the order: the smallest product so far can become the largest one step later. Zeros also break the chain.",
+   "What two values ending at the current index would you need to carry so a negative number can't catch you off guard? Alternatively, think about prefix and suffix products around zeros."
+  ],
+  "javaNote": "Save the old max in a temp before updating min, or you multiply with an already-updated value. Products overflow int quickly in general; use long when constraints allow."
+ },
+ {
+  "n": 5,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Only three distinct values exist. Could you carve the array into regions that are already 0s, already 2s, and still unknown, all in a single pass?",
+   "Maintain boundaries for the 0-region, the unexplored part, and the 2-region. After swapping something in from the right side, is the element you received already classified?"
+  ],
+  "javaNote": "Write a small swap helper that takes the int[] and two indices; Java passes primitives by value, so a swap(int a, int b) method changes nothing."
+ },
+ {
+  "n": 6,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Fix one element; now you need two others summing to its negative. What does sorting the array let you do for that inner search, and how does it help with duplicates?",
+   "After sorting, the inner search becomes a two-pointer squeeze. Where must you skip equal neighbours so each triplet is reported exactly once?"
+  ],
+  "javaNote": "Arrays.asList(a, b, c) returns a fixed-size list; fine for results, but don't try to add to it. Duplicate-skipping loops need bounds checks to avoid ArrayIndexOutOfBounds."
+ },
+ {
+  "n": 7,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Scan from the right. Which trailing portion is already in its largest possible order, so no rearrangement inside it alone can give a bigger arrangement?",
+   "The change happens at the element just before that portion. What should replace it to make the smallest possible increase, and how should everything after it then be arranged?"
+  ],
+  "javaNote": "Reverse a subrange in place with two indices; don't box into Integer[] just to call Collections.reverse, it costs time and memory."
+ },
+ {
+  "n": 8,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "This is 3 Sum with one more fixed element. What extra care do duplicates need now that two outer indices are fixed?",
+   "Sorting plus a two-pointer inner search still applies; how many outer levels do you need, and where does duplicate skipping go at each level?"
+  ],
+  "javaNote": "Four ints near 10^9 overflow int. Compute the sum as long: (long) nums[i] + nums[j] + nums[l] + nums[r]."
+ },
+ {
+  "n": 9,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": false,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Both arrays are sorted. The final layout puts the n smallest values in the first array; which elements across the boundary are clearly in the wrong place?",
+   "Think about the largest elements of the first array versus the smallest of the second: when should they trade places? Alternatively, consider comparisons at a shrinking gap across both arrays."
+  ],
+  "javaNote": "For the gap method, compute the next gap as (gap / 2) + (gap % 2) with integer division, and stop after processing gap 1, or the loop never ends."
+ },
+ {
+  "n": 10,
+  "difficulty": "Hard",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Water above a bar depends on the tallest bar to its left and the tallest to its right. Brute force rescans both sides for every bar; can you avoid that?",
+   "Precompute left and right maxima, or use two pointers moving inward. Which side can you safely settle when its running max is the smaller one?"
+  ],
+  "javaNote": "Total water can exceed int for large inputs with tall bars; accumulate in a long if constraints are big."
+ },
+ {
+  "n": 11,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": false,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "An inversion is a pair out of order. When you combine two halves that are each already sorted, how many pairs can one comparison tell you about at once?",
+   "Can a divide-and-conquer sort count inversions as a side effect? While combining sorted halves, when a right-side element moves ahead, how many left-side elements does it jump over?"
+  ],
+  "javaNote": "Inversion count can reach about n^2/2, which overflows int for n around 10^5. Return and accumulate a long."
+ },
+ {
+  "n": 12,
+  "difficulty": "Hard",
+  "stretch": true,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Like counting inversions, but the condition is a[i] > 2*a[j]. If both halves were sorted, could one forward-moving pointer answer many pairs at once?",
+   "Piggyback on merge sort, but count qualifying cross-half pairs in a separate monotone pass. Why can't the count be folded directly into the normal merge comparison?"
+  ],
+  "javaNote": "2 * nums[j] overflows int when nums[j] is near Integer.MAX_VALUE. Compare as nums[i] > 2L * nums[j]."
+ },
+ {
+  "n": 13,
+  "difficulty": "Easy",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "For each number, its partner is fully determined. Brute force searches the whole array for it; what could answer 'have I seen this partner?' instantly?",
+   "Remember values you've already passed along with their indices in a hash map. Should you check for the partner before or after storing the current element?"
+  ],
+  "javaNote": "Use map.containsKey() or check get() for null before unboxing; assigning a missing key's get() result to an int throws NullPointerException."
+ },
+ {
+  "n": 14,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Sorting costs O(n log n). Which numbers could possibly start a consecutive run, and how could you tell instantly whether a neighbour value exists?",
+   "With a hash set for O(1) lookups, which values deserve to begin a count? Making sure each run is walked only once keeps the whole thing linear."
+  ],
+  "javaNote": "Iterate over the HashSet, not the original array, so duplicates don't trigger repeated walks that can degrade to O(n^2)."
+ },
+ {
+  "n": 15,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": true,
+  "leetcodeFix": null,
+  "hints": [
+   "A subarray sum is a difference of two prefix sums. For the current prefix, what earlier prefix value would make the subarray ending here sum to K?",
+   "Map each prefix sum to an index. To maximize length, which occurrence should you keep, and should later occurrences overwrite it? (All-positive input also allows a sliding window.)"
+  ],
+  "javaNote": "Use HashMap<Long,Integer> if sums can overflow int, and putIfAbsent so the earliest index is kept. Seed the map with prefix 0 at index -1."
+ },
+ {
+  "n": 16,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Negatives are allowed, so a shrinking window breaks. Every subarray sum is a difference of two prefix sums; what count would tell you how many valid starts exist?",
+   "Keep a hash map from prefix sum to how many times it has occurred. How do you make sure subarrays starting at index 0 are counted?"
+  ],
+  "javaNote": "Use map.getOrDefault(key, 0) + 1 or merge(key, 1, Integer::sum) to update counts cleanly without null checks."
+ },
+ {
+  "n": 17,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": false,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "XOR is its own inverse: if A ^ B = C then A ^ C = B. How could that let you recover a subarray's XOR from two running values?",
+   "Same shape as counting subarrays with sum K: a frequency map of running XOR values. What value do you look up for the current position, and what must the map start with?"
+  ],
+  "javaNote": "The ^ operator is XOR in Java, not exponentiation. Parenthesize mixed expressions since ^ has lower precedence than == and +."
+ },
+ {
+  "n": 18,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "The array isn't sorted, yet O(log n) is expected. If you stand at mid and the next element is bigger, what must exist somewhere to the right?",
+   "Binary search on the slope: compare mid with a neighbour and move toward the rising side. The edges behave as negative infinity."
+  ],
+  "javaNote": "Compute mid as low + (high - low) / 2 to avoid int overflow, and compare nums[mid] with nums[mid + 1] only while mid + 1 is in range."
+ },
+ {
+  "n": 19,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "At any mid, at least one half is sorted. Which half could still contain the rotation point where values drop?",
+   "Compare mid with one end of the range to decide which side holds the minimum. Keep the invariant that the search range always contains the answer."
+  ],
+  "javaNote": "Use while (low < high) with high = mid (not mid - 1) when mid itself may be the minimum; mixing loop styles causes infinite loops or skips."
+ },
+ {
+  "n": 20,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "With duplicates, low, mid and high can all be equal; then you can't tell which half is sorted. What small step is still safe in that case?",
+   "Use the usual rotated-array check for a sorted half, but when the ends match mid, shrink the range slightly. What does that do to the worst-case complexity?"
+  ],
+  "javaNote": "Return true as soon as nums[mid] == target; check that before the duplicate-shrinking step so you don't skip past the target."
+ },
+ {
+  "n": 21,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Look at the index positions of each matching pair. How does the pairing pattern differ before the lone element versus after it?",
+   "Binary search on index parity: is mid's pair partner where the 'before' pattern says it should be? Discard the half that is still well paired."
+  ],
+  "javaNote": "mid ^ 1 gives the partner index (even to next, odd to previous) in one step; be sure you understand bitwise XOR before relying on it."
+ },
+ {
+  "n": 22,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Rows and columns are sorted, but rows don't continue each other. Is there a corner where one comparison lets you discard a whole row or column?",
+   "From that corner, each comparison eliminates a row or a column. Why does the top-left or bottom-right corner not give you that guarantee?"
+  ],
+  "javaNote": "Guard empty input: check matrix.length == 0 before reading matrix[0].length, or you hit ArrayIndexOutOfBoundsException."
+ },
+ {
+  "n": 23,
+  "difficulty": "Medium",
+  "stretch": true,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "In 1D you followed the uphill slope. In a grid, if you pick a middle column and its biggest cell, which neighbours still matter?",
+   "Binary search over columns: the column maximum only needs to beat its left and right neighbours. Which half must contain a peak if one of them is bigger?"
+  ],
+  "javaNote": "Handle edge columns by treating out-of-range neighbours as -1 (values are positive), rather than indexing mat[r][c-1] when c is 0."
+ },
+ {
+  "n": 24,
+  "difficulty": "Easy",
+  "stretch": false,
+  "leetcodeOk": false,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "The candidate root lies between 1 and m, and raising a bigger candidate to the nth power never gives a smaller result. What does that monotonicity allow?",
+   "Search over candidate answers rather than array indices. When computing a candidate's power, how can you avoid ever building a huge number?"
+  ],
+  "javaNote": "mid^n overflows long quickly; multiply in a loop and break as soon as the product exceeds m. Avoid Math.pow, its doubles round inexactly."
+ },
+ {
+  "n": 25,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "If Koko can finish at speed s, she can finish at any faster speed. What does that 'yes beyond a threshold' shape suggest about searching speeds?",
+   "Binary search on the eating speed itself. What are the smallest and largest speeds worth trying, and how do you check one speed quickly?"
+  ],
+  "javaNote": "Ceiling division: (pile + speed - 1) / speed. Total hours can overflow int, so sum into a long."
+ },
+ {
+  "n": 26,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": false,
+  "leetcodePremium": false,
+  "leetcodeFix": "magnetic-force-between-two-balls",
+  "hints": [
+   "If you can place all cows keeping distance at least d apart, you can for any smaller d too. What does that tell you about the answer space?",
+   "Binary search on the minimum distance. After sorting stalls, what simple greedy placement tells you whether a given distance is achievable?"
+  ],
+  "javaNote": "Arrays.sort on an int[] is fine here; compute mid as lo + (hi - lo) / 2 since stall positions can be near 10^9."
+ },
+ {
+  "n": 27,
+  "difficulty": "Hard",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Allocations are contiguous. If students can manage with a max load of X pages, can they manage with X+1? What range could the answer lie in?",
+   "Binary search on the maximum pages allowed per student, with a greedy feasibility check counting students needed. What if there are more students than books?"
+  ],
+  "javaNote": "The total pages (upper bound of the search) can exceed int; sum into a long and keep the search bounds as long."
+ },
+ {
+  "n": 28,
+  "difficulty": "Medium",
+  "stretch": true,
+  "leetcodeOk": true,
+  "leetcodePremium": true,
+  "leetcodeFix": null,
+  "hints": [
+   "Flattening and sorting is wasteful. For a guessed value x, can you quickly count how many cells are at most x using the sorted rows?",
+   "Binary search on the value range, not on positions. What count of 'elements at most x' identifies the median?"
+  ],
+  "javaNote": "For counting per row, write an upper-bound search yourself; Arrays.binarySearch returns an arbitrary match with duplicates, not the last one."
+ },
+ {
+  "n": 29,
+  "difficulty": "Medium",
+  "stretch": false,
+  "leetcodeOk": false,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "The k smallest elements are some prefix of the first array plus some prefix of the second. Picking how many come from the first decides the rest.",
+   "Binary search on how many elements to take from the smaller array. What cross-comparison between the two sides tells you the split is valid?"
+  ],
+  "javaNote": "Use Integer.MIN_VALUE and Integer.MAX_VALUE as sentinels for empty sides; restrict the search range so taken counts never exceed k or array length."
+ },
+ {
+  "n": 30,
+  "difficulty": "Hard",
+  "stretch": false,
+  "leetcodeOk": true,
+  "leetcodePremium": false,
+  "leetcodeFix": null,
+  "hints": [
+   "Merging is O(m+n). The median splits all values into a left and right half of known size. How many from each array land on the left?",
+   "Binary search the cut position in the smaller array; the other cut follows. What must be true between the values on each side of both cuts?"
+  ],
+  "javaNote": "Return a double: divide by 2.0, not 2, or integer division truncates. Sum two middle ints as long or double to avoid overflow."
+ },
+ {
+  "n": 31,
+  "hints": [
+   "When you meet a character already inside your current substring, does everything before its earlier occurrence still matter?",
+   "Keep a window of distinct characters. What could you store per character so the left edge can jump forward instead of crawling one step at a time?"
+  ],
+  "javaNote": "Use an int[128] or int[256] indexed by char instead of HashMap<Character,Integer>; it avoids boxing and is faster. A char used as an index auto-widens to int.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 32,
+  "hints": [
+   "You must take exactly k cards from the ends. What shape do the cards you leave behind always form?",
+   "Think of a fixed-size block of untaken cards, or a split between 'taken from left' and 'taken from right'. Can a running sum be updated in O(1) per shift?"
+  ],
+  "javaNote": "Up to 1e5 cards of value up to 1e4 fits in int, but check bounds habitually; switch to long whenever n * maxValue could exceed about 2.1e9.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 33,
+  "hints": [
+   "After your flips, the answer is a stretch of 1s. In the original array, what condition must that stretch satisfy?",
+   "A variable-size window works here. What count should you keep for the window, and when must the left edge move?"
+  ],
+  "javaNote": "Compare ints directly (nums[r] == 0); if you ever store values in List<Integer>, == on boxed Integer compares references and silently breaks outside -128..127.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 34,
+  "hints": [
+   "In any window, which characters would you choose to replace? How many replacements does that window actually need?",
+   "Slide a window with letter frequencies. Validity depends on window length and the most frequent letter inside it. Does that max frequency ever need to decrease for the answer to be correct?"
+  ],
+  "javaNote": "Map uppercase letters with s.charAt(i) - 'A' into an int[26]; char arithmetic gives an int index directly, no Character boxing needed.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 35,
+  "hints": [
+   "Once a substring has more than k distinct characters, will extending it further ever make it valid again?",
+   "Use a variable window plus a frequency map. Which quantity tells you the window is invalid, and how do you restore validity?"
+  ],
+  "javaNote": "When a count drops to zero, call map.remove(key); otherwise map.size() still counts it. Use getOrDefault to avoid a NullPointerException when unboxing a missing value.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 36,
+  "hints": [
+   "Checking every substring against t is wasteful. What single number would tell you a window already covers all of t, without recounting?",
+   "Grow the window until it covers t, then try to shrink it while it stays valid. Keep per-character needed counts and a count of what is still missing."
+  ],
+  "javaNote": "Store the best window as start index and length, and call substring once at the end; building substrings inside the loop creates many throwaway String objects.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 37,
+  "hints": [
+   "If s[i..j] already contains a, b and c, what can you say about every longer substring that starts at i or earlier and ends at j?",
+   "Fix the right end. Which single position limits how far left a valid start can go, and what per-letter information lets you find it in O(1)?"
+  ],
+  "javaNote": "The count can approach n*(n+1)/2; for n = 5e4 that is about 1.25e9, close to Integer.MAX_VALUE. A long accumulator is the safe habit.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 38,
+  "hints": [
+   "With zeros present, a window with the right sum can be extended or shrunk without changing its sum. Why does that confuse a simple grow/shrink window?",
+   "Counting subarrays with sum 'at most X' is window-friendly. How could two such counts give 'exactly goal'? Prefix sums with a frequency table also work."
+  ],
+  "javaNote": "Guard the helper when the limit is negative (goal - 1 with goal 0): return 0 immediately, otherwise the shrink loop can move left past right.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 39,
+  "hints": [
+   "Does the actual value of each number matter, or only whether it is odd? What does the array become if you replace each element by that?",
+   "After that transformation, which earlier problem is this? Reuse its counting idea, either window-based or prefix-count based."
+  ],
+  "javaNote": "Use (x & 1) != 0 or x % 2 != 0 for oddness; x % 2 == 1 fails for negative numbers in Java because the remainder takes the sign of the dividend.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 40,
+  "hints": [
+   "For each element there are exactly two possibilities in any subset. How many subsets does that give, and how could you enumerate them?",
+   "Make one include-or-skip decision per index while carrying a current list. Alternatively, can the binary digits of a counter encode each choice?"
+  ],
+  "javaNote": "When adding the current path to results, copy it with new ArrayList<>(path); adding the same mutable list reference leaves every result empty after backtracking.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 41,
+  "hints": [
+   "At any prefix, when is it legal to add '(' and when is it legal to add ')'? What would make a prefix unfixable?",
+   "Backtrack while tracking how many opens and closes you have used. Which comparison between those counts guards each choice?"
+  ],
+  "javaNote": "Use one StringBuilder and undo with sb.deleteCharAt(sb.length() - 1) after each recursive call; String concatenation in recursion creates a new object every step.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 42,
+  "hints": [
+   "Each digit offers a small fixed set of letters, and you need one choice per digit. What does the full space of outputs look like?",
+   "Recurse over digit positions, picking one letter from that digit's mapping at each level, with the partial string as state."
+  ],
+  "javaNote": "Handle empty input explicitly: return an empty list, not a list containing \"\". Store the keypad as a String[] indexed by digit - '0'.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 43,
+  "hints": [
+   "An element can be reused any number of times. How do you avoid producing the same combination in a different order, like [2,3] and [3,2]?",
+   "Backtrack with a start index and the remaining target. After choosing an element, from which index should the next choice be allowed to start?"
+  ],
+  "javaNote": "Sort candidates first and break the loop once a candidate exceeds the remaining target; without sorting you can only continue, not break.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 44,
+  "hints": [
+   "The input has duplicates but each element can be used once. Where exactly do duplicate combinations come from?",
+   "Sort, then backtrack from a start index. At one recursion level, is there any point trying the same value twice as the next element?"
+  ],
+  "javaNote": "Arrays.sort(int[]) sorts primitives in place with no comparator needed; avoid converting to Integer[] just to sort, which adds boxing overhead.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 45,
+  "hints": [
+   "With repeated values, several different choice sequences give the same subset. What ordering of the input makes those duplicates sit next to each other?",
+   "After sorting, treat every recursion node as a subset. When choosing the next element at one level, what should you do with a value you just tried?"
+  ],
+  "javaNote": "The duplicate-skip check should compare against the loop's start index (i > start), not i > 0; i > 0 wrongly blocks equal values at deeper levels.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 46,
+  "hints": [
+   "Every partition starts with some first piece. Which first pieces are allowed, and what is left to solve after you pick one?",
+   "Backtrack on a start index, trying each palindromic prefix of the remainder. Could palindrome checks be precomputed to avoid repeating them?"
+  ],
+  "javaNote": "Check palindromes with two indices on the original string instead of building reversed copies via new StringBuilder(s).reverse(), which allocates on every check.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 47,
+  "hints": [
+   "The word can start at any cell and snake in four directions, but a cell cannot be reused within one path. What must you remember during a search?",
+   "DFS from each cell matching the first letter, carrying the index into the word. How do you mark a cell as used for this path only?"
+  ],
+  "javaNote": "Temporarily overwrite board[r][c] with a marker like '#' and restore it after; check bounds before reading board[r][c] to avoid ArrayIndexOutOfBoundsException.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 48,
+  "hints": [
+   "Exactly one queen per row is forced. So what is the real choice you make at each row, and what makes a choice illegal?",
+   "Place row by row with backtracking. Keep O(1) lookups for occupied columns and both diagonal directions; what quantity is constant along each diagonal?"
+  ],
+  "javaNote": "Diagonal index arrays need size 2n-1; one diagonal direction gives a negative index unless you add an offset like n-1, causing ArrayIndexOutOfBoundsException.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 49,
+  "hints": [
+   "Each empty cell has only a few digits that do not clash with its row, column and box. What should happen when a cell has no legal digit left?",
+   "Backtrack over empty cells, trying legal digits and undoing on failure. What bookkeeping makes each legality check constant time?"
+  ],
+  "javaNote": "Box index is (r/3)*3 + c/3 using integer division. Digits are chars: convert with ch - '1' for 0-based indexing and (char)('1' + d) when writing back.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 50,
+  "hints": [
+   "Can you find the middle in a single pass without knowing the length in advance?",
+   "Move two pointers at different speeds; when the faster one runs out, where is the slower one? Check which middle is required for even lengths."
+  ],
+  "javaNote": "Check fast != null && fast.next != null in that order; Java short-circuits &&, so reversing it throws NullPointerException.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 51,
+  "hints": [
+   "The two lists may have different lengths before they merge. Why do two pointers moving together from both heads miss each other?",
+   "How can you make both pointers travel the same total distance before reaching the junction? Think length difference, or what happens at each list's end."
+  ],
+  "javaNote": "Compare nodes with == (reference identity), which is correct here; do not compare node values, since separate nodes can hold equal values.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 52,
+  "hints": [
+   "A singly linked list cannot be walked backwards. Which part would you need to traverse in reverse to compare with the other?",
+   "Can you locate the middle and change the direction of one half in place, so both halves can be walked forward together? Consider restoring the list afterwards."
+  ],
+  "javaNote": "If you use a stack, prefer ArrayDeque<Integer> over Stack; compare popped values with .equals() or unbox to int, not == on Integer objects.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 53,
+  "hints": [
+   "A set of visited nodes works but costs O(n) memory. If two walkers move through a loop at different speeds, what eventually happens?",
+   "Use a slow and a fast pointer. What outcome signals a loop, and what outcome proves there is none?"
+  ],
+  "javaNote": "A HashSet<ListNode> relies on identity hashCode unless ListNode overrides it; fine here, but overriding equals/hashCode would change visited-set behavior.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 54,
+  "hints": [
+   "Counting the length first takes two passes. Can a fixed gap between two pointers tell you where the nth-from-end node is in one pass?",
+   "Create a gap of n between two pointers, then move both together. What helper node makes removing the head itself no special case?"
+  ],
+  "javaNote": "Return dummy.next, not head; when the first node is deleted the original head reference still points at the removed node.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 55,
+  "hints": [
+   "After slow and fast pointers meet inside the loop, how does the distance from head to the loop start relate to the distance from the meeting point?",
+   "Detect the meeting point first. Then, what happens if two pointers at equal speed start from two different, well-chosen places?"
+  ],
+  "javaNote": "Return null when no cycle exists; check fast and fast.next before each double step so the null check happens before dereferencing.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 56,
+  "hints": [
+   "Once you know a node that is definitely inside the loop, how could you measure the loop's size?",
+   "Find a node inside the loop with slow and fast pointers, then count how many steps it takes to come back to that same node."
+  ],
+  "javaNote": "Use a do-while or start the counter after one step; a plain while (curr != meet) starting at meet exits immediately with count 0.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 57,
+  "hints": [
+   "To reverse, each node's next pointer must point backwards. What do you lose the moment you overwrite a node's next?",
+   "Walk the list holding the previous node and the current node. What must you save before redirecting the current link?"
+  ],
+  "javaNote": "Recursive reversal uses one stack frame per node; very long lists can throw StackOverflowError, so prefer the iterative form.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 58,
+  "hints": [
+   "Both lists are already sorted. At any moment, which node must come next in the merged list?",
+   "Keep a tail pointer on the result and attach the smaller current head each time. How does a dummy start node remove special cases?"
+  ],
+  "javaNote": "Attach the leftover list directly with tail.next = (l1 != null) ? l1 : l2 instead of looping over it node by node.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 59,
+  "hints": [
+   "There are only three possible values. Do you really need a general sorting algorithm, or just a way to group nodes?",
+   "Either count each value and overwrite data, or relink nodes into three separate chains and join them. Which version avoids changing node data?"
+  ],
+  "javaNote": "When joining the three chains, set the final tail's next to null; otherwise an old link can create a cycle and your printing loop never ends.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 60,
+  "hints": [
+   "The digits are stored least significant first. Which direction does a carry naturally flow, and how does that match the list order?",
+   "Walk both lists together, summing digits plus a carry. When are you actually finished: when both lists end, or something more?"
+  ],
+  "javaNote": "Do not convert the lists to int or long and add; numbers up to 100 digits overflow any primitive. Use sum / 10 for carry and sum % 10 for the digit.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 61,
+  "hints": [
+   "Rotating by k where k is larger than the length repeats work. What rotation amount is actually needed?",
+   "Get the length and tail, reduce k, then find where the new tail sits. Could temporarily linking the tail to the head make the cut easier?"
+  ],
+  "javaNote": "Guard head == null before taking k % length; modulo by zero on an empty list throws ArithmeticException.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 62,
+  "hints": [
+   "Linked lists lack random access, so index-heavy sorts are awkward. Which O(n log n) sort only needs splitting and sequential walking?",
+   "Split around the middle, sort each half, combine two sorted lists. Which earlier linked list problems give you each of those pieces?"
+  ],
+  "javaNote": "When finding the split point, start fast at head.next; otherwise a two-node list never splits and recursion loops until StackOverflowError.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 63,
+  "hints": [
+   "Copying next pointers is easy. When you copy a node, its random target may not have a copy yet. What lookup would you need?",
+   "Map each original node to its copy, or place each copy right after its original. In the second layout, where does any original's copy live?"
+  ],
+  "javaNote": "HashMap<Node,Node> uses identity hashing since Node does not override hashCode, which is what you want. In the interleaving approach, check random != null before random.next.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 64,
+  "hints": [
+   "Reversing one group is a solved subproblem. What must you know about the nodes just before and just after a group to stitch it back in?",
+   "Handle one group at a time, first confirming k nodes remain. Which references must you hold to reconnect each reversed group to its neighbors?"
+  ],
+  "javaNote": "Use a dummy node before head and keep a reference to the previous group's tail; returning the original head after reversals gives the wrong list.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 65,
+  "hints": [
+   "Each vertical sublist is already sorted. Flattening is really about combining several sorted lists into one; how would you do that for just two?",
+   "Combine sublists two at a time along the child pointers, perhaps recursively from the right end, or use a min-heap over the current heads."
+  ],
+  "javaNote": "For a PriorityQueue<Node>, write the comparator as (a, b) -> Integer.compare(a.data, b.data); subtraction can overflow with extreme values.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 66,
+  "hints": [
+   "For each element, the brute force rescans everything to its right. Once a bigger element appears, which earlier elements can never be anyone's answer again?",
+   "A monotonic stack can hold only the candidates that are still useful. Which direction should you scan, and what ordering must the candidates on the stack keep?"
+  ],
+  "javaNote": "Use ArrayDeque<Integer> instead of the legacy synchronized Stack class, and compare unboxed values: == on two Integer objects above 127 compares references, not values.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 67,
+  "hints": [
+   "The array is circular, so an element's answer may lie before it. How could you see 'everything after me, wrapping around' without physically copying the array?",
+   "Keep the same monotonic stack idea, but let the scan cover the array as if it appeared twice, using index arithmetic. During which part of the scan should answers actually be written?"
+  ],
+  "javaNote": "Fill the result with -1 via Arrays.fill before the loop, and use i % n for indexing; forgetting the modulo on 2n iterations throws ArrayIndexOutOfBoundsException.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 68,
+  "hints": [
+   "A day's span reaches back until a strictly higher price. Once today's price beats some earlier days, will those days ever stop a future span on their own?",
+   "Keep a stack of earlier prices that are still able to block a span, in decreasing order. When a day absorbs smaller ones, what should it remember so their days are not recounted?"
+  ],
+  "javaNote": "Store pairs as int[] {price, span} in an ArrayDeque<int[]>; avoid creating a wrapper class with Integer fields that you later compare with ==.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 69,
+  "hints": [
+   "Instead of enumerating every subarray, flip the view: for one element, in how many subarrays is it the minimum? What limits how far that range extends left and right?",
+   "Use monotonic stacks to find, for each element, the nearest smaller value on each side. How do the two extents turn into a count? With duplicates, make one side strict and the other not."
+  ],
+  "javaNote": "Products of distances times values overflow int; accumulate in long and apply the 1_000_000_007 modulo on the long before casting back.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 70,
+  "hints": [
+   "A subarray's range is its max minus its min. Can the total over all subarrays be split into two independent totals you might already know how to compute?",
+   "Treat each element's contribution as a maximum and as a minimum separately, using nearest-boundary stacks for each. Keep the duplicate tie-breaking consistent on each side."
+  ],
+  "javaNote": "The answer can exceed 2^31 for n near 1000 with large values; declare the running sum and the per-element contribution as long, casting before multiplying.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 71,
+  "hints": [
+   "Which digit position matters most for making a number small? If a digit is bigger than the one right after it, what does keeping it cost you?",
+   "Build the result greedily with a stack that stays non-decreasing, spending removals on bigger digits that came earlier. What if removals are left over, or the result starts with zeros?"
+  ],
+  "javaNote": "Use a StringBuilder as the stack (append and deleteCharAt(length-1)); string concatenation in a loop is O(n^2). Return \"0\" for an empty result.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 72,
+  "hints": [
+   "When a new large value enters the window, older smaller values inside the window can never be the maximum again. What does that let you discard?",
+   "Use a deque of indices whose values decrease from front to back. Which end handles elements leaving the window, and which end handles dominated elements?"
+  ],
+  "javaNote": "Store indices, not values, in ArrayDeque<Integer>; you need the index to detect window expiry. Use peekFirst/pollLast consistently to avoid mixing ends.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 73,
+  "hints": [
+   "The best rectangle uses some bar as its limiting (shortest) height. For a given bar, what decides how far left and right it can stretch?",
+   "Keep a stack of indices with increasing heights. When a bar gets popped, which nearby indices tell you its left and right limits? Remember bars still on the stack at the end."
+  ],
+  "javaNote": "LeetCode's limits keep height * width within int, but variants with larger heights overflow; computing area as long is a safe habit.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 74,
+  "hints": [
+   "Fix a bottom row. If you count consecutive 1s going upward in each column ending at that row, what familiar 1D shape does that row become?",
+   "Keep a per-column height array updated row by row (a 0 resets it), and reuse a problem you have already solved on it for every row."
+  ],
+  "javaNote": "The matrix is char[][]; compare with '1' not 1. matrix[i][j] - '0' gives the digit, but a char compared with an int literal 1 is silently false.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 75,
+  "hints": [
+   "Push and pop are easy; the trouble is getMin after the current minimum is popped. What would you need to know about the minimum at every earlier moment?",
+   "Each stack level should know the minimum of everything at or below it, either by storing pairs or by encoding the previous minimum when a new min is pushed."
+  ],
+  "javaNote": "If you use the encoded-value trick (2*val - min), the arithmetic overflows int for extreme values; store long. With two Integer stacks, compare tops using equals, not ==.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 76,
+  "hints": [
+   "A collision only happens when something moving right is followed by something moving left. Which previously seen asteroids could a new left-mover possibly hit?",
+   "Keep a stack of survivors. A left-moving asteroid fights right-movers on top; think through all three outcomes of comparing absolute sizes, including equal sizes."
+  ],
+  "javaNote": "Converting the result ArrayDeque to int[] needs care: iterating an ArrayDeque used as a stack via push yields reverse order. Use addLast/pollLast or fill the array from the end.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 77,
+  "hints": [
+   "Ask one question: does A know B? Whatever the answer, what does it tell you about whether A or B could still be the celebrity?",
+   "Eliminate people pairwise (a stack or two pointers) until one candidate remains. Does elimination alone prove that person is the celebrity, or is a check still needed?"
+  ],
+  "javaNote": "Do not skip the final verification loop; also exclude i == candidate when checking the matrix diagonal, or a self-knows entry can wrongly reject the candidate.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 78,
+  "hints": [
+   "Both get and put must be O(1), and every access changes which key is 'least recent'. Which structure gives O(1) lookup, and which gives O(1) reordering?",
+   "Combine a hash map from key to node with a doubly linked list ordered by recency; sentinel head and tail nodes remove edge cases on insert and removal."
+  ],
+  "javaNote": "LinkedHashMap with accessOrder=true and removeEldestEntry is a valid shortcut, but interviewers often want the manual list; also update the value on put for an existing key.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 79,
+  "hints": [
+   "Eviction depends on use count first and recency second. When a key's count increases, which group does it leave, and how would you know the new smallest count?",
+   "Group keys by frequency, each group ordered by recency, plus a key-to-node map and the current minimum frequency. When exactly does that minimum need to change?"
+  ],
+  "javaNote": "With capacity 0, put must do nothing; guard it explicitly. LinkedHashSet per frequency works as an ordered bucket, and iterator().next() gives its oldest key.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 80,
+  "hints": [
+   "You do not need the exact path, only whether the end is reachable. As you walk left to right, what single number summarizes everything you can reach so far?",
+   "Track the farthest index reachable so far. What does it mean if you reach an index beyond it? No backtracking or DP table is needed."
+  ],
+  "javaNote": "i + nums[i] fits in int here, but in similar problems with large jumps, compute reach in long or use Math.max carefully to avoid wraparound.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 81,
+  "hints": [
+   "Brute force branches three ways on every '*'. Do you really need each branch's full history, or only how many '(' are still unmatched? How far apart can those counts be?",
+   "Track a range of possible unmatched-open counts instead of one value. What makes the string impossible partway through, why can the low end never go negative, and what must hold at the end?"
+  ],
+  "javaNote": "s.charAt(i) returns a char, so compare with '*' and not \"*\" (char vs String will not compile). In tight loops, a char[] from toCharArray() is simpler.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 82,
+  "hints": [
+   "Each child's constraint involves only its left and right neighbors. Could you satisfy the left-neighbor rule and the right-neighbor rule separately, then reconcile them?",
+   "Make one pass for each direction, each enforcing one neighbor rule. How should you combine a child's two requirements so both sides stay happy?"
+  ],
+  "javaNote": "Initialize the candy array with Arrays.fill(arr, 1); a new int[] defaults to 0, which silently undercounts by n.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 83,
+  "hints": [
+   "To fit the most meetings in one room, which meeting should you commit to first so that the room is freed up as early as possible?",
+   "Greedy works here: which attribute of a meeting should you sort by, and what condition must the next meeting meet against the last one you accepted? Keep original indices if the order must be reported."
+  ],
+  "javaNote": "Sort index arrays with a comparator using Integer.compare(end[a], end[b]), not end[a] - end[b], to avoid overflow on large timestamps.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 84,
+  "hints": [
+   "The input is already sorted and non-overlapping. Relative to the new interval, the existing ones fall into exactly three groups. What are they?",
+   "Handle the three groups in one linear pass. For the overlapping group, how should the new interval's bounds change as it absorbs each one?"
+  ],
+  "javaNote": "Build the answer in a List<int[]> and convert with list.toArray(new int[0][]); the zero-length typed array is required to get int[][] back.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 85,
+  "hints": [
+   "Removing the fewest intervals is the same as keeping the most. Among overlapping candidates, which one is least likely to block future intervals?",
+   "Sort by the attribute that leaves the most room afterwards, and greedily keep compatible intervals. How do you get the removal count from the number you kept?"
+  ],
+  "javaNote": "Arrays.sort(intervals, (a, b) -> a[1] - b[1]) can overflow with negative bounds near Integer.MIN_VALUE; use Integer.compare(a[1], b[1]).",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 86,
+  "hints": [
+   "The number of platforms needed is the most trains present at any single moment. Do you need to know which train pairs with which departure to count that?",
+   "Sort arrivals and departures independently and sweep both together, tracking how many trains are in the station and the peak. Decide how equal arrival and departure times are ordered."
+  ],
+  "javaNote": "Sorting the two arrays separately with Arrays.sort on int[] is fine; do not sort an Integer[] with a subtraction comparator. Check whether arrival equal to departure needs an extra platform.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 87,
+  "hints": [
+   "Every job takes one unit of time and has a deadline. If you could only do some, which jobs deserve priority, and when should each be scheduled to leave room for others?",
+   "Consider jobs greedily in order of value. When you accept a job, which free time slot should it take so it blocks as few other jobs as possible? A disjoint set can speed up finding slots."
+  ],
+  "javaNote": "Sort the job array with Comparator using Integer.compare(b.profit, a.profit) for descending order; total profit can exceed int, so sum into long.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 88,
+  "hints": [
+   "Suppose both children of a node already satisfy the heap property and only the node itself is out of place. Which direction does it need to move, and how far?",
+   "Sift the node down by repeatedly comparing it with its children until heap order holds. Which child should it swap with, and how do you find children from an index?"
+  ],
+  "javaNote": "With 0-based arrays children are 2*i+1 and 2*i+2; mixing in 1-based formulas causes off-by-one bugs. Always bounds-check the child index before reading it.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 89,
+  "hints": [
+   "Leaves are already valid one-element heaps. Which nodes actually need fixing, and in what order must they be processed so each fix sees valid subtrees below?",
+   "Reuse sift-down on the non-leaf nodes in an order that guarantees valid subtrees below each one. Think about why the total work is linear rather than n log n."
+  ],
+  "javaNote": "The last parent index is n/2 - 1 with 0-based indexing; integer division handles odd n correctly, but n/2 alone includes a leaf and wastes a call.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 90,
+  "hints": [
+   "A heap is just an array with a shape rule. After adding at the end or removing the root, the order is broken in exactly one place. Where?",
+   "Insertion and extraction each need one repair direction (up or down). Which one goes with which? Track the current size separately from the array's capacity."
+  ],
+  "javaNote": "If backed by a fixed int[], check capacity before insert and size before extract; ArrayList<Integer> grows automatically but autoboxing makes comparisons need compareTo or unboxing.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 91,
+  "hints": [
+   "Fully sorting is more work than needed since you only care about one rank. How many elements do you really need to keep around while scanning?",
+   "Keep a heap of bounded size holding the best candidates seen so far. Should it be a min-heap or a max-heap so the answer sits on top? Quickselect is an average-linear alternative."
+  ],
+  "javaNote": "PriorityQueue<Integer> is a min-heap by default; for a max-heap use Collections.reverseOrder() rather than (a, b) -> b - a, which can overflow.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 92,
+  "hints": [
+   "The median only depends on the middle of the sorted data. If you split the numbers into a lower half and an upper half, what do you need quick access to in each?",
+   "Use two heaps, one per half, each facing the middle. What size balance and ordering invariant between the halves must hold after every insert?"
+  ],
+  "javaNote": "Return the median as double: (a + b) / 2.0. Writing (a + b) / 2 does integer division, and a + b can overflow int, so add as long first.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 93,
+  "hints": [
+   "Nodes must come out grouped by depth. A plain recursive walk dives deep first. What would let you finish one whole depth before touching the next?",
+   "Use a queue. At the start of each round, the queue holds exactly one level. How can you tell where the current level ends before its children join the queue?"
+  ],
+  "javaNote": "Use ArrayDeque with offer/poll. It rejects nulls, so check children before adding them. Reading queue.size() inside the loop condition breaks the level boundary, so store it first.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 94,
+  "hints": [
+   "Width counts the null gaps between the leftmost and rightmost nodes on a level. Counting only real nodes undercounts. Could each node carry a position number?",
+   "Do a level-order walk where each node carries a heap-style index derived from its parent's. A level's width depends only on its first and last index. How do you keep those indices from growing huge?"
+  ],
+  "javaNote": "Heap-style indices double at every level, so they overflow int on deep, skewed trees. Use long, or subtract the level's minimum index before deriving the children's indices.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 95,
+  "hints": [
+   "From the right side, you see exactly one node per depth. Which node on each level is that one, and how would you know you have reached a new depth?",
+   "Either look at the last node of each BFS level, or do a DFS that prefers the right child and records a node the first time a depth is reached. The left view mirrors this."
+  ],
+  "javaNote": "Passing depth as a recursion parameter is clean. Keeping it in a shared field means you must undo it on the way back. For very skewed trees, recursion depth can overflow the stack, so BFS is safer.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 96,
+  "hints": [
+   "Give each node a horizontal coordinate: left child is one less, right child one more. Several nodes share a column. Which one is visible from above?",
+   "Traverse level by level carrying (node, column), keeping an ordered map from column to node. Why does BFS order make the first node seen in a column the right one? DFS needs extra depth tracking."
+  ],
+  "javaNote": "TreeMap keeps columns sorted, and putIfAbsent keeps the first entry. With DFS, a later shallower node must overwrite a deeper one, so compare depths explicitly.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 97,
+  "hints": [
+   "Distance K can go upward through the parent and then down another branch. Tree nodes only point down. What extra information would let you move in every direction?",
+   "Treat the tree like an undirected graph: record each node's parent, then expand outward from the target one ring at a time with a visited set. When do you stop expanding?"
+  ],
+  "javaNote": "Use a HashMap<TreeNode, TreeNode> for parents and a HashSet<TreeNode> for visited. Node identity works here because TreeNode does not override equals or hashCode.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 98,
+  "hints": [
+   "Each second, fire spreads to the parent and to both children. The answer is how far the farthest node is from the start node. Why does it matter that fire can travel upward?",
+   "Make parent links available, then spread outward from the start node in layers with a visited set. What you need is the number of layers that burn something new."
+  ],
+  "javaNote": "If the start is given as a value, find the node with a DFS before the BFS. Count a layer only when it actually burns new nodes, or you will be off by one.",
+  "leetcodeOk": false,
+  "leetcodeFix": "amount-of-time-for-binary-tree-to-be-infected",
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 99,
+  "hints": [
+   "Each node has a (column, row). Output goes column by column, then top to bottom. When two nodes share both column and row, how should ties be ordered?",
+   "Collect (column, row, value) for every node during a traversal. Then group or sort them with a multi-key ordering. Which key comes first, and which breaks ties?"
+  ],
+  "javaNote": "Use Integer.compare in each comparator key, not subtraction. TreeMap<Integer, TreeMap<Integer, PriorityQueue<Integer>>> works, but a sorted list of int[] triples is simpler.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 100,
+  "hints": [
+   "The path to the current node is the path to its parent plus one node. When you finish a subtree, the path has to shrink again. Where should that happen?",
+   "DFS with one shared path that grows on the way down and shrinks on the way back up (backtracking). At which kind of node do you record a copy of it?"
+  ],
+  "javaNote": "Adding the shared list straight into the results stores a reference that keeps changing. Add new ArrayList<>(path) instead. With a StringBuilder, use setLength to undo appends.",
+  "leetcodeOk": false,
+  "leetcodeFix": "binary-tree-paths",
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 101,
+  "hints": [
+   "The longest path bends at some node, going down into its left subtree and its right subtree. Recomputing heights from every node repeats work. Can one pass get both?",
+   "A post-order DFS that returns subtree height can also, in the same call, consider the path bending at the current node. Keep a running best outside the recursion."
+  ],
+  "javaNote": "Java has no pass-by-reference for ints. Use an int[1] holder or an instance field for the running maximum. Check whether the problem measures diameter in edges or in nodes.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 102,
+  "hints": [
+   "Look at a node from the bottom up. If one target is in its left subtree and the other is in its right, what does that tell you about this node?",
+   "Let each recursive call report upward whether it found a target below. What should a node conclude when both sides report something, and what should it pass up when only one does?"
+  ],
+  "javaNote": "Compare nodes by reference (==), which is right when you are given TreeNode objects. If you are given values, compare node.val. Never compare Integer objects with ==.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 103,
+  "hints": [
+   "The boundary has three parts: the left edge, the leaves, and the right edge reversed. Which nodes could get counted twice where these parts meet?",
+   "Collect the three parts separately and stitch them together. Decide which part owns the leaves and the root, and in what order the right edge is added."
+  ],
+  "javaNote": "Use Collections.reverse or push onto an ArrayDeque for the right edge. A root with no children is a leaf, so guard against adding it twice.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 104,
+  "hints": [
+   "Preorder tells you the root first. Inorder tells you which values sit left of that root and which sit right. How large is each subtree, then?",
+   "Recurse on inorder index ranges while a shared pointer moves through preorder. A value-to-index map lets you find the root in inorder instantly."
+  ],
+  "javaNote": "Precompute HashMap<Integer, Integer> for inorder positions instead of searching, or the solution becomes O(n^2). Keep the preorder pointer in a field or an int[] so recursion advances it.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 105,
+  "hints": [
+   "A stack or recursion costs O(h) extra memory just to remember how to return to an ancestor. Do some null pointers in the tree have nothing useful to do?",
+   "Temporarily reuse a spare null pointer inside each left subtree to point back to the current node. How do you recognise that link on your second visit, and what must you do with it?"
+  ],
+  "javaNote": "Always cut the temporary link when you meet it again, or the tree stays modified and later traversals loop forever. Compare nodes with == to detect the thread.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 106,
+  "hints": [
+   "A path can bend at one node, but it can only pass one branch up to the parent. Negative values exist. When would you rather skip a branch entirely?",
+   "A post-order DFS returns the best single downward chain from each node, while a global best considers the path bending there. How should a chain that hurts the sum be treated?"
+  ],
+  "javaNote": "Start the global best at Integer.MIN_VALUE or at root.val, not 0, because every node can be negative. Use an int[] or a field to hold it across calls.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 107,
+  "hints": [
+   "One traversal order alone cannot rebuild a tree. What happens if you also write down where the children are missing?",
+   "Write a preorder or level-order string with explicit null markers. Deserialize with the same order, reading tokens one at a time from a shared cursor."
+  ],
+  "javaNote": "Build the output with StringBuilder, not string concatenation. split(\",\") silently drops trailing empty strings, and comparing tokens with == fails, so use \"null\".equals(token).",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 108,
+  "hints": [
+   "The ordering rule tells you which way to go at each node. Where does a new value always end up, as an existing node or as a new leaf?",
+   "Walk down comparing values until you find an empty child slot where the value belongs. If recursive, have each call return its (possibly new) subtree root."
+  ],
+  "javaNote": "If you work recursively, assign the result back (root.left = insert(root.left, val)). If the tree is empty, return the new node as the root.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 109,
+  "hints": [
+   "Unlike a plain tree, here you know which side each target is on without searching. When do both targets stop being on the same side of the current node?",
+   "A single walk down from the root, guided only by comparing the current value with both targets, is enough. What is special about the first node where they disagree on direction?"
+  ],
+  "javaNote": "A loop avoids recursion depth issues on skewed BSTs. Compare with p.val and q.val. Don't assume p.val is smaller than q.val.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 110,
+  "hints": [
+   "Removing a leaf or a node with one child is easy. A node with two children is harder: which value could replace it and still keep the BST order?",
+   "Find the node first. For the two-children case, think about its inorder neighbours, or about reattaching one subtree under the other. Return new subtree roots back up."
+  ],
+  "javaNote": "Forgetting to assign the returned subtree (root.right = delete(...)) silently loses the change. Handle deleting the root itself.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 111,
+  "hints": [
+   "The successor is the smallest value greater than the key. Building the full inorder list works, but can the BST ordering guide a single walk down?",
+   "Walk from the root comparing with the key. Which nodes you pass along the way are possible successors, and how does each new candidate compare to the previous one? Predecessor mirrors this."
+  ],
+  "javaNote": "Keep candidates as TreeNode references that start as null, and return null if none exists. Don't use -1 as a sentinel when values can be negative.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 112,
+  "hints": [
+   "An inorder walk of a BST visits values in sorted order. Do you have to visit every node to find the k-th one?",
+   "Do an inorder walk with a counter and stop early once it is reached. For k-th largest, either reverse the walk order or relate it to a k-th smallest query."
+  ],
+  "javaNote": "The counter must survive across recursive calls. Use a field or an int[], because a local int is only copied. An iterative ArrayDeque stack makes stopping early simple.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 113,
+  "hints": [
+   "Checking only that each node is larger than its left child and smaller than its right child is not enough. What can a deep node break that its parent cannot see?",
+   "Pass an allowed (low, high) range down the recursion and tighten it at each step. Another option is to check that inorder values strictly increase."
+  ],
+  "javaNote": "Nodes may hold Integer.MIN_VALUE or MAX_VALUE, so use long bounds or nullable Integer bounds. Decide on purpose whether duplicate values are allowed.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 114,
+  "hints": [
+   "Preorder gives the root first, then the whole left subtree, then the right. Searching for where each subtree ends costs O(n^2). Could a value bound tell you when to stop?",
+   "Build recursively with a shared index into preorder plus an upper bound per call. A call keeps consuming values only while they fit, so each value is read once."
+  ],
+  "javaNote": "Keep the index in a field or an int[] so all calls share it. Use Integer.MAX_VALUE, or long, as the starting bound.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 115,
+  "hints": [
+   "On a sorted array you would solve this with two pointers moving inward. A BST holds sorted data too. Can you step through it from both ends without building the array?",
+   "Build two stack-backed inorder iterators, one ascending and one descending. Which side should advance depending on how the current pair's sum compares with the target?"
+  ],
+  "javaNote": "Use ArrayDeque<TreeNode> for both iterator stacks. Stop when the two iterators reach the same node, since one node cannot be used twice.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 116,
+  "hints": [
+   "The inorder sequence should be sorted, but two values have been swapped. Where in a sorted sequence would that swap show up?",
+   "Do an inorder walk tracking the previous node and note where the order breaks. There may be one break or two. In each case, which nodes are actually misplaced?"
+  ],
+  "javaNote": "Swap node.val values, not node references. Keep first, middle, last and prev as fields that start as null, then check the adjacent-swap case before swapping.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 117,
+  "hints": [
+   "Validating every subtree from scratch is O(n^2). A subtree is a valid BST only if both children are, plus some fact about their value ranges. Which fact?",
+   "Use a post-order DFS where each subtree reports a small summary (size and value range) to its parent. How can an invalid subtree report itself so every ancestor also fails?"
+  ],
+  "javaNote": "Return an int[] or a small record instead of using several fields. Null children return min = MAX_VALUE and max = MIN_VALUE, and invalid subtrees reverse these, so watch the comparisons carefully.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 118,
+  "hints": [
+   "Only cells that share the starting cell's original colour, and can be reached through such cells, change. What should happen if the new colour equals the old one?",
+   "Spread outward from the start cell to 4-directional neighbours that still hold the original colour. Could recolouring a cell also serve as your visited marker?"
+  ],
+  "javaNote": "If newColor equals the original colour, recursive DFS keeps revisiting cells and throws StackOverflowError. Return early in that case.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 119,
+  "hints": [
+   "Each island is a group of connected land cells. Once you find one land cell, what should happen to the rest of its group so it is never counted again?",
+   "Treat the grid as a graph of land cells. A DFS/BFS from any land cell covers exactly one component. How do you mark cells so each component is explored only once?"
+  ],
+  "javaNote": "The grid is char[][], so compare with '1', not 1. Comparing a char with the int 1 compiles but never matches.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 120,
+  "hints": [
+   "Every rotten orange spreads rot at the same moment. Running a separate search from each one wastes work. How can you simulate them all spreading together?",
+   "Use a BFS that starts with every initially rotten cell, processed one minute-level at a time. What count lets you tell at the end whether some fresh orange was never reached?"
+  ],
+  "javaNote": "Use ArrayDeque<int[]> as the queue rather than LinkedList. Read queue.size() once before each level loop, because the size changes as you add cells.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 121,
+  "hints": [
+   "Running a BFS from every cell to find its nearest target repeats a lot of work. Can you turn the question around and start from the targets?",
+   "Use a single BFS that starts from all target cells at distance 0. Why is the first distance a cell receives already its final answer?"
+  ],
+  "javaNote": "Fill the distance array with -1 to mean unvisited (Arrays.fill on each row), so you do not confuse distance 0 with 'not yet set'.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 122,
+  "hints": [
+   "Which 'O' cells can never be captured? Think about where on the grid a region has to touch in order to escape.",
+   "Instead of testing each region, search outward from the border 'O's and mark everything they reach as safe. What happens to the 'O's left unmarked?"
+  ],
+  "javaNote": "Recursive DFS on a 200x200 board full of 'O' can overflow the default stack. Use an iterative BFS with ArrayDeque if you are unsure.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 123,
+  "hints": [
+   "Two islands count as the same when one is a translated copy of the other. Which description of an island stays the same however you move it?",
+   "While exploring each island, describe its cells relative to a fixed anchor cell of that island, then store these shape signatures in a set. Its size is the answer."
+  ],
+  "javaNote": "A HashSet of List<int[]> compares arrays by reference. Encode the shape as a String or List<List<Integer>> so equal shapes hash equally.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 124,
+  "hints": [
+   "In an undirected graph every edge leads straight back to the node you came from. When does reaching an already-visited node really mean there is a cycle?",
+   "During BFS/DFS, remember the node you arrived from. Which visited neighbour is harmless, and which one proves a cycle? Do not forget disconnected components."
+  ],
+  "javaNote": "The graph may be disconnected, so loop over every vertex and start a new traversal from each unvisited one. Do not search only from vertex 0.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 125,
+  "hints": [
+   "A graph is bipartite exactly when its vertices split into two teams with no edge inside a team. What kind of structure would make that split impossible?",
+   "Try 2-colouring with BFS/DFS, giving neighbours opposite colours. What conflict tells you to stop? Remember the graph can be disconnected."
+  ],
+  "javaNote": "Use an int[] colour array filled with -1 for uncoloured. A boolean[] cannot tell 'uncoloured' apart from 'colour 0'.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 126,
+  "hints": [
+   "In a directed graph, reaching a node visited earlier is not always a cycle. It might sit on a branch you already finished. What separates the two cases?",
+   "In DFS, track which nodes are on the current recursion path, not just which were ever visited. Alternatively, can an indegree-based ordering include every node?"
+  ],
+  "javaNote": "Clear the on-path flag when DFS returns from a node. Forgetting this backtracking step is the classic bug and reports false cycles.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 127,
+  "hints": [
+   "Which vertices can safely come first in the order? What happens to the remaining vertices once those are removed?",
+   "Track each vertex's indegree. Vertices with indegree 0 are ready. How does placing one of them change which other vertices become ready?"
+  ],
+  "javaNote": "Build the adjacency as List<List<Integer>> with a new ArrayList per vertex. new ArrayList[n] gives raw-type warnings and null entries.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 128,
+  "hints": [
+   "A prerequisite pair forces one course to come before another. What kind of ordering does that ask for, and when can no valid order exist?",
+   "Model courses as a directed graph and build a topological order. How can you tell from the order's length that a cycle blocked some courses?"
+  ],
+  "javaNote": "Check the direction of [a, b]: b must come before a. Reversing the edge still compiles but gives the order backwards.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 129,
+  "hints": [
+   "The words are already sorted in the alien order. What does comparing two neighbouring words tell you, and what tells you nothing beyond their first difference?",
+   "Turn letter comparisons into directed edges between letters, then order the letters. Which invalid input, such as a longer word before its own prefix, must you catch?"
+  ],
+  "javaNote": "Map letters to indices with c - 'a'. Only include letters that actually appear in the words, or unused letters will show up in your output.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 130,
+  "hints": [
+   "In a strongly connected component every node can reach every other. If you DFS from an arbitrary node, how do you stop it leaking into other components?",
+   "Reversing every edge keeps each SCC intact but blocks the edges between them in one direction. Which order from a first DFS tells you where to start searches in the reversed graph?"
+  ],
+  "javaNote": "Collect the finish order in an ArrayDeque used as a stack (push/pop). java.util.Stack is synchronized and outdated.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 131,
+  "hints": [
+   "Removing a bridge disconnects the graph. In DFS terms, what would show that a subtree has no other way back above an edge?",
+   "Give each node a discovery time and track the earliest time its subtree can reach through a non-tree edge. How does that compare with the parent's time for a bridge?"
+  ],
+  "javaNote": "With n up to 1e5, recursive DFS can exceed Java's default stack. Run it in new Thread(null, task, \"\", 1<<26) or write it iteratively.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 132,
+  "hints": [
+   "Removing an articulation point splits the graph. How is that different from removing an edge, and why might the DFS root need its own rule?",
+   "Reuse the discovery-time and low-link idea from bridges. How does the comparison change when a vertex, not an edge, is removed? What makes the root special?"
+  ],
+  "javaNote": "One vertex can meet the condition through several children. Mark it in a boolean[] rather than adding to a list each time, or you get duplicates.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 133,
+  "hints": [
+   "Every edge costs the same. Which traversal order reaches nodes in increasing distance without any extra work?",
+   "With BFS from the source, why is the first time you reach a node already its shortest distance? What should unreached nodes report?"
+  ],
+  "javaNote": "Fill the distance array with -1 or Integer.MAX_VALUE before starting, and convert unreached entries to -1 if the output requires it.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 134,
+  "hints": [
+   "The graph has no cycles. If you visit vertices in a suitable order, could each one already be final before you use its outgoing edges?",
+   "Combine a topological order with edge relaxation from the source. What must you do with vertices that are still unreached when their turn comes?"
+  ],
+  "javaNote": "Do not relax from a vertex whose distance is still Integer.MAX_VALUE. Adding a weight to it overflows into a negative number.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 135,
+  "hints": [
+   "With non-negative weights, which unfinished vertex can you be certain already has its final shortest distance?",
+   "A min-priority queue keyed by tentative distance gives you that vertex each time. What should you do with outdated queue entries for a vertex already finalised?"
+  ],
+  "javaNote": "Write the comparator as (a, b) -> Integer.compare(a[1], b[1]), not a[1] - b[1], which can overflow when distances are large.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 136,
+  "hints": [
+   "A path's cost is its single largest step, not the sum of its steps. Does 'always extend the cheapest frontier first' still make sense under that cost?",
+   "Adapt Dijkstra so a path's cost is its largest height difference so far. Binary searching the allowed effort with a reachability check also works."
+  ],
+  "javaNote": "Use Math.abs on the height difference and Integer.compare in the PriorityQueue comparator. Store {effort, r, c} as an int[].",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 137,
+  "hints": [
+   "The cheapest route may use too many stops. Why could a plain greedy-by-cost search throw away a route you need later?",
+   "Make the number of stops part of the state, exploring in rounds by stop count (BFS by levels or a limited Bellman-Ford). What must each round read from so it cannot chain edges?"
+  ],
+  "javaNote": "In the limited Bellman-Ford, relax from a copy of the previous round's array (prev.clone()). Updating in place lets one round use more edges than allowed.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 138,
+  "hints": [
+   "With negative edges, 'finalise the smallest distance' no longer works. How many edges can a shortest simple path have at most?",
+   "If you relax every edge once per round, which paths are guaranteed correct after round i? How many rounds are enough, and what would an extra round reveal?"
+  ],
+  "javaNote": "Skip edges whose start distance is still the 'infinity' value (such as 1e8 or Integer.MAX_VALUE), so adding a negative weight does not corrupt it.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 139,
+  "hints": [
+   "You need shortest distances between every pair. Suppose paths may only pass through the first k vertices. What changes when one more vertex is allowed?",
+   "Build a DP over which vertices may be used as intermediates. Which loop must be outermost, and how would a negative cycle show up in the matrix?"
+  ],
+  "javaNote": "Keep the intermediate-vertex loop outermost. Check that both halves are not 'infinity' before adding them, or the sum overflows.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 140,
+  "hints": [
+   "Treat each word as a node joined to words one letter away. What does 'shortest sequence' then become, and how can you find neighbours without comparing every pair?",
+   "Run BFS from beginWord, creating candidate neighbours by changing one position at a time and checking them against a HashSet. How do you avoid queueing a word twice?"
+  ],
+  "javaNote": "Build candidates with toCharArray(): change one position, make new String(arr), then restore it. Avoid substring concatenation in the inner loop.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 141,
+  "hints": [
+   "You need every shortest sequence, not just its length. Storing whole paths in the BFS queue blows up. What smaller piece of information is enough to rebuild them?",
+   "Use a level-by-level BFS that records each word's level or parents, removing words only after a whole level finishes. How can you then backtrack from endWord?"
+  ],
+  "javaNote": "Copy the path when saving it: res.add(new ArrayList<>(path)). Otherwise later backtracking changes the lists you already stored.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 142,
+  "hints": [
+   "You need fast answers to 'are these two in the same group?' while groups keep merging. Does each group need more than one representative?",
+   "Keep a parent array in which each root represents its set. What keeps the trees shallow, both when merging and while searching for a root?"
+  ],
+  "javaNote": "Recursive find with path compression is fine once you use union by rank or size. Without either, a long chain can overflow the stack.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 143,
+  "hints": [
+   "A spanning tree has exactly V-1 edges. When is it always safe to put the cheapest remaining edge into the tree?",
+   "Kruskal: take edges in increasing weight order, using a DSU to skip edges inside one set. Prim: grow one tree using a min-heap of edges that leave it."
+  ],
+  "javaNote": "Sort edges with Integer.compare or Comparator.comparingInt. Accumulate the total in a long if the weights can be large.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 144,
+  "hints": [
+   "Joining k separate components needs at least k-1 cables. Where can those cables come from, and when is it impossible?",
+   "Use a DSU to count components and the redundant cables, which join two computers already connected. How do those two counts decide the answer?"
+  ],
+  "javaNote": "Check connections.length < n - 1 first and return -1. It is a cheap guard before building the DSU.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 145,
+  "hints": [
+   "Land is added one cell at a time, and you report the island count after each addition. Re-scanning the whole grid every time is too slow. How much can one new cell change the count?",
+   "Keep a DSU over cell indices. A new land cell starts as its own island. What happens to the count each time it merges with a distinct neighbouring set? Watch for repeated positions."
+  ],
+  "javaNote": "Map (r, c) to one index with r * cols + c, using cols and not rows. If the same position is added twice, skip it, or the count increases wrongly.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 146,
+  "hints": [
+   "Flipping one 0 to 1 joins the islands that touch it. Re-flooding the grid for every 0 is too slow. What could you precompute about each island?",
+   "Give every island an id and record its size. For a 0, how do you combine the sizes of the different islands around it without counting one twice? Handle an all-ones grid."
+  ],
+  "javaNote": "Collect neighbouring island ids in a small HashSet, or compare them by hand, so an island touching the 0 on two sides is not counted twice.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 147,
+  "hints": [
+   "To land on stone i you must have come from one of the previous k stones. Does the cheapest way to reach stone i depend on how you reached those earlier stones?",
+   "1D DP: store the cheapest cost to reach each stone. Which earlier entries does stone i need to look at, and what does each candidate jump add?"
+  ],
+  "javaNote": "Initialize the cost array with Integer.MAX_VALUE carefully; adding to MAX_VALUE overflows to negative. Use Arrays.fill and only add to reachable entries, and guard i - j >= 0.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 148,
+  "hints": [
+   "Greedy picking of the largest houses fails because of the adjacency rule. At each house you face only two choices: take it or skip it. What does each choice forbid?",
+   "DP over prefixes: what is the best loot using only the first i houses? Which smaller prefixes does each of the two choices lean on? How few values must you keep around?"
+  ],
+  "javaNote": "Handle n == 1 before reading nums[1]; an ArrayIndexOutOfBoundsException on single-element input is the classic slip. Rolling variables avoid allocating an int[] at all.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 149,
+  "hints": [
+   "Each day's choice is only constrained by what you did yesterday. So what extra piece of information must travel with 'best total up to day i'?",
+   "State = (day, activity done on the previous day). What should each state store, and which of yesterday's states are allowed to feed into it?"
+  ],
+  "javaNote": "Keep two small int[] arrays (prev, curr) and swap references each day; writing into the same array you are still reading from corrupts that day's values.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 150,
+  "hints": [
+   "You can only move right or down, so a cell can only be entered from two neighbours. What should a blocked cell contribute to the count?",
+   "Grid DP counting paths per cell. How do the two incoming neighbours combine, what happens on an obstacle, and can one row array be reused in place?"
+  ],
+  "javaNote": "Check obstacleGrid[0][0] == 1 up front; returning 1 for a blocked start is a common bug. A 1D int[] row is enough and saves memory.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 151,
+  "hints": [
+   "At the end of any day you are in exactly one of two situations: holding a share or not. Does anything else about the past matter for future profit?",
+   "Track the best profit for each of those two situations. How can each be reached from yesterday's two values, and at which moment do you charge the fee?"
+  ],
+  "javaNote": "Compute the new 'free' and 'hold' values from the previous day's values, not from a just-updated variable; store old values in temporaries before overwriting.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 152,
+  "hints": [
+   "Compared with the unlimited version, you now also need to remember how many transactions you have used. What happens when k is at least half the number of days?",
+   "State = (day, transactions used, holding or not). Can you keep only per-transaction buy/sell values instead of a full table over days?"
+  ],
+  "javaNote": "Large k with a 2D array of n*k can blow memory; use 1D arrays indexed by transaction count, and short-circuit the big-k case before allocating.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 153,
+  "hints": [
+   "Taking items by best value/weight ratio fails because items cannot be split. For each item, there are only two options. What two quantities define a subproblem?",
+   "DP over (item index, remaining capacity). If you compress to one capacity array, which iteration direction keeps each item from being used twice?"
+  ],
+  "javaNote": "In the 1D version, looping capacity upward silently turns it into unbounded knapsack. Also, value sums may exceed int range on large inputs; consider long.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 154,
+  "hints": [
+   "If one subset sums to s1, the other is fixed at total - s1. So the difference depends on a single number. Which values of s1 are actually achievable?",
+   "Subset-sum DP: a boolean table of which sums can be formed. Once you have it, which reachable sum minimises the difference, and how far do you need to search?"
+  ],
+  "javaNote": "Use boolean[] rather than Boolean[] for the reachable-sums table; Boolean[] defaults to null and unboxing it throws NullPointerException.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 155,
+  "hints": [
+   "Assigning + or - splits the numbers into two groups P and N. You know P - N must equal target and P + N equals the total. What does that tell you about P?",
+   "Reduce to counting subsets with one specific sum. Which inputs make that sum impossible, and how do zeros in the array affect the count?"
+  ],
+  "javaNote": "Check (total + target) % 2 and Math.abs(target) > total before computing an array size; a negative size throws NegativeArraySizeException.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 156,
+  "hints": [
+   "You want combinations, not orderings: 1+2 and 2+1 are the same. How can loop order prevent counting the same multiset twice?",
+   "Unbounded knapsack counting with a 1D ways array. Which loop must be outer so each combination is counted once, and why may a coin be reused within its pass?"
+  ],
+  "javaNote": "Swapping the loops (amount outer, coin inner) counts permutations instead. Intermediate counts can exceed int in some variants; know when long is needed.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 157,
+  "hints": [
+   "Compare the last characters of the two strings. If they match, what can you safely conclude? If not, which characters might be dropped?",
+   "2D DP over prefix lengths (i, j). What does a match contribute, and on a mismatch which smaller subproblems compete?"
+  ],
+  "javaNote": "Use an (n+1) x (m+1) table so index 0 means empty prefix; this removes bounds checks. Use charAt(i-1) carefully, or convert to char[] once for speed.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 158,
+  "hints": [
+   "Unlike a subsequence, a substring must be contiguous. So when the current characters do not match, what happens to any run you were building?",
+   "Store the length of the common substring ending exactly at (i, j). What does a match build on, what does a mismatch become, and where does the answer live?"
+  ],
+  "javaNote": "The answer is the maximum over all cells, not the bottom-right cell. Keep a separate max variable instead of returning dp[n][m].",
+  "leetcodeOk": false,
+  "leetcodeFix": "maximum-length-of-repeated-subarray",
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 159,
+  "hints": [
+   "A palindromic subsequence reads the same forwards and backwards. What happens if you compare the string with its own reverse?",
+   "Either reuse a known two-string DP against the reversed string, or do interval DP on (left, right). What should happen when the two ends match versus differ?"
+  ],
+  "javaNote": "new StringBuilder(s).reverse().toString() is the clean way to reverse; String has no reverse method, and building by += in a loop is O(n^2).",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 160,
+  "hints": [
+   "The O(n^2) idea asks, for each element, which earlier smaller element gives the longest chain. Among many increasing subsequences of the same length, which one is the most useful to keep extending later?",
+   "Maintain a sorted array indexed by subsequence length. What should each slot hold, and how can binary search decide where a new number goes?"
+  ],
+  "javaNote": "On a partially filled tails array use Arrays.binarySearch(tails, 0, size, x), and decode the -(insertionPoint) - 1 result correctly; or write your own lower-bound search.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 161,
+  "hints": [
+   "Knowing the LIS length ending at each index is not enough; several different chains can reach the same length. What second number should each index carry?",
+   "Carry (length, count) per index. When extending from an earlier element, how should the count change if the chain becomes strictly longer versus exactly ties?"
+  ],
+  "javaNote": "Initialize both arrays with Arrays.fill(len, 1) and Arrays.fill(cnt, 1); forgetting the count initialization gives zero for every answer.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 162,
+  "hints": [
+   "Look at the last characters of both strings. If they differ, there are exactly three operations that could have fixed that position. What does each one leave behind?",
+   "2D DP over prefix lengths. What are the costs of converting to or from an empty string, and which neighbouring cell does each operation correspond to?"
+  ],
+  "javaNote": "Remember Math.min takes only two arguments; nest calls for three options. Fill row 0 and column 0 with i and j before the main loops.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 163,
+  "hints": [
+   "'?' is easy: it matches exactly one character. The trouble is '*'. At each step, a star can either match nothing or swallow one more character. Which subproblems do those two options lead to?",
+   "DP over (pattern prefix, text prefix). Be careful with the empty-text base case: when can a non-empty pattern prefix match an empty text?"
+  ],
+  "javaNote": "Use a boolean[][] table, and convert strings to char[] first. Recursion without memoization on long inputs risks both TLE and StackOverflowError.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 164,
+  "hints": [
+   "The final multiplication splits the chain into a left part and a right part at some position. If you knew the best cost of each part, what would the total be?",
+   "Interval DP over (i, j). What do you iterate over inside an interval, and in what order must intervals be filled so their subresults are ready?"
+  ],
+  "javaNote": "Products of three dimensions can overflow int for large sizes; use long for intermediate cost. Initialize mins with Integer.MAX_VALUE only before comparing, never before adding.",
+  "leetcodeOk": false,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 165,
+  "hints": [
+   "Checking 'is s[i..j] a palindrome' again and again is the hidden cost. Could you answer that question instantly? And what does the last piece of a partition look like?",
+   "Precompute palindrome information once, then a 1D DP over prefixes. What does each prefix's value depend on, given every possible palindromic last piece?"
+  ],
+  "javaNote": "Fill the boolean palindrome table so that isPal[i+1][j-1] is already computed before isPal[i][j]; iterating i downward avoids reading uncomputed cells.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 166,
+  "hints": [
+   "You must answer exact-word counts, prefix counts, and support erase. A single end-of-word flag cannot answer 'how many'. What should each node remember?",
+   "Each trie node keeps counters instead of a flag. Which two counts answer the two queries, and how do insert and erase adjust them along a path?"
+  ],
+  "javaNote": "Use Node[] children = new Node[26] with c - 'a' indexing; a HashMap<Character, Node> works but autoboxes every char and is slower.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 167,
+  "hints": [
+   "A word qualifies only if every one of its prefixes is also a word in the list. Can you check all prefixes of a word in a single walk instead of separate lookups?",
+   "Trie with end-of-word markers. While walking a word's path, what must be true at every node for it to qualify? Do not forget the tie-break rule."
+  ],
+  "javaNote": "For lexicographic tie-breaking use a.compareTo(b) < 0; comparing strings with == checks references, not contents, and < does not compile for String.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 168,
+  "hints": [
+   "Every substring is a prefix of some suffix. Storing all substrings in a set costs a lot of memory. Is there a structure where shared prefixes are stored only once?",
+   "Insert every suffix into a trie. How does the number of trie nodes relate to the number of distinct substrings, and does the empty string count?"
+  ],
+  "javaNote": "Inserting all suffixes creates up to O(n^2) nodes; Node objects with 26-slot arrays add up fast, so watch memory and avoid HashSet<String> of substrings.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": true,
+  "stretch": true,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 169,
+  "hints": [
+   "A single high bit outweighs all lower bits combined. For a given number, what would you like its partner's bits to look like, starting from the top?",
+   "Binary trie over fixed-width bit representations, highest bit first. At each level, which child do you prefer for the current number, and when are you forced otherwise?"
+  ],
+  "javaNote": "Extract bits with (num >> i) & 1; don't use Math.pow. With non-negative ints, start from bit 30; including bit 31 is fine but mind sign with >>.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 170,
+  "hints": [
+   "Each query only allows array elements up to some limit. Rebuilding a structure per query is too slow. Does the order in which you answer queries have to match the input order?",
+   "Answer queries offline, ordered by limit, so a binary trie only ever grows. How do you restore input order, and what if no element is allowed yet?"
+  ],
+  "javaNote": "Sort query indices with Integer.compare in the comparator (or sort an int[][] by column), and store the original index so answers go back in input order.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 171,
+  "hints": [
+   "Comparing the pattern against every window character by character repeats work. Could a single number summarise a window, and be updated cheaply when it slides?",
+   "Rolling hash: how do you remove the outgoing character and add the incoming one in O(1)? Why must you still verify when hashes match?"
+  ],
+  "javaNote": "Do the hash arithmetic in long with a modulus, and when removing the outgoing char add the modulus before taking % again; Java's % can return negatives.",
+  "leetcodeOk": false,
+  "leetcodeFix": "find-the-index-of-the-first-occurrence-in-a-string",
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 172,
+  "hints": [
+   "If you know how far the string matches its own prefix from earlier positions, can that knowledge skip comparisons at later positions?",
+   "Z-array: for each index, how far does the string match its own prefix from there? Keep the rightmost known matching window. How would you join pattern and text to search?"
+  ],
+  "javaNote": "Pick a separator character that cannot appear in either string (e.g. '$'), and build the combined string with StringBuilder rather than repeated concatenation.",
+  "leetcodeOk": false,
+  "leetcodeFix": "find-the-index-of-the-first-occurrence-in-a-string",
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 173,
+  "hints": [
+   "When a mismatch happens after several matched characters, the naive approach throws all of that away. Could part of what you matched already be the start of the pattern?",
+   "Precompute, for each pattern prefix, the longest proper prefix that is also a suffix. On a mismatch, how does that table tell you where to resume instead of restarting?"
+  ],
+  "javaNote": "Building the LPS table, the fallback is a while loop (len = lps[len - 1]), not a single if; using if gives subtly wrong tables on patterns like \"aabaaab\".",
+  "leetcodeOk": true,
+  "leetcodeFix": "find-the-index-of-the-first-occurrence-in-a-string",
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 174,
+  "hints": [
+   "You may only add characters at the front, so part of s survives untouched at the start of the answer. Which part can that be, and what must be true of it?",
+   "You need the longest palindromic prefix quickly. Could a prefix-function on a string built from s and its reverse find it? Why is a separator needed?"
+  ],
+  "javaNote": "Use a separator like '#' between s and its reverse, otherwise the LPS value can extend past the original string's length and give wrong answers.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": true,
+  "difficulty": "Hard"
+ },
+ {
+  "n": 175,
+  "hints": [
+   "With n elements, each subset is a yes/no decision per element. How many subsets are there, and what familiar sequence of numbers encodes n yes/no decisions?",
+   "Let an integer stand for a subset. How do you enumerate all of them, and how does a single bit decide membership of one element?"
+  ],
+  "javaNote": "Use 1 << n, not Math.pow(2, n), which returns double. For n >= 31 an int shift overflows; use 1L << n if n could be large.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 176,
+  "hints": [
+   "Every number except one appears three times. Look at a single bit position across all numbers. What can you say about the count of 1s there?",
+   "Count set bits per position and use modulo 3 to rebuild the answer, or keep two bitmasks tracking 'seen once' and 'seen twice'."
+  ],
+  "javaNote": "When rebuilding the answer bit by bit, include bit 31 with ans |= (1 << 31); this correctly restores negative numbers in two's complement.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 177,
+  "hints": [
+   "XOR of everything gives a ^ b for the two unique numbers. Since a != b, that result has at least one 1 bit. What does that bit tell you about a versus b?",
+   "Use one bit where a and b differ to divide all numbers into two groups. What does each group then reduce to?"
+  ],
+  "javaNote": "Isolate the lowest set bit with x & (-x). If x is Integer.MIN_VALUE, -x equals x, which still works, but don't use Math.abs on it.",
+  "leetcodeOk": true,
+  "leetcodeFix": null,
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ },
+ {
+  "n": 178,
+  "hints": [
+   "You know exactly which numbers 1..n should be present. Comparing the actual sum (and something else) to the expected one gives equations. How many unknowns are there?",
+   "Either form two equations from differences of sums and sums of squares, or XOR with 1..n and separate the two unknowns by a differing bit."
+  ],
+  "javaNote": "Sum of squares up to n overflows int quickly; compute expected sums and differences in long, casting before multiplying (long) n * (n + 1).",
+  "leetcodeOk": false,
+  "leetcodeFix": "set-mismatch",
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Easy"
+ },
+ {
+  "n": 179,
+  "hints": [
+   "Trial division of every number up to N repeats a lot of work. Once you know a number is prime, what do you immediately know about its multiples?",
+   "Sieve of Eratosthenes with a boolean array. From which multiple can marking safely start, and up to which prime do you need to mark at all?"
+  ],
+  "javaNote": "Start marking at i * i but compute it as (long) i * i or loop while i <= n / i; i * i overflows int for large N and becomes negative.",
+  "leetcodeOk": false,
+  "leetcodeFix": "count-primes",
+  "leetcodePremium": false,
+  "stretch": false,
+  "difficulty": "Medium"
+ }
+]

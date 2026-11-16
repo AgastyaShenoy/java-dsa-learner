@@ -1,20 +1,37 @@
 {
-  "name": "java-dsa-learner",
-  "version": "0.1.0-beta",
+  "name": "sde-tracker",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "desktop:dev": "node scripts/desktop-dev.mjs",
+    "desktop:build": "next build && node scripts/prepare-desktop.mjs",
+    "dist": "npm run desktop:build && electron-builder --win --publish never",
+    "release": "npm run desktop:build && electron-builder --win --publish always"
   },
   "dependencies": {
-    "@google/genai": "^2.22.0",
+    "electron-updater": "^6.8.11"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/mona-sans": "^5.3.0",
+    "@fontsource/open-runde": "^5.3.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
     "@types/prismjs": "^1.26.6",
-    "canvas-confetti": "^1.9.4",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
+    "electron": "^38.8.6",
+    "electron-builder": "^26.18.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.25",
     "katex": "^0.18.7",
     "lucide-react": "^1.44.0",
     "next": "15.5.25",
@@ -24,18 +41,56 @@
     "react-markdown": "^10.1.0",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
-    "tailwind-merge": "^3.0.2"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/canvas-confetti": "^1.9.0",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.5.25",
+    "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "productName": "SDE Tracker",
+  "description": "Striver's 180 DSA practice tracker: 25-minute solo attempts, gated hints, re-solves 2 days later.",
+  "author": "Agastya Shenoy",
+  "main": "electron/main.js",
+  "homepage": "https://github.com/AgastyaShenoy/java-dsa-learner",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AgastyaShenoy/java-dsa-learner.git"
+  },
+  "build": {
+    "appId": "pro.agastya.sdetracker",
+    "productName": "SDE Tracker",
+    "artifactName": "SDE-Tracker-Setup-${version}.${ext}",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "shortcutName": "SDE Tracker"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "AgastyaShenoy",
+        "repo": "java-dsa-learner",
+        "releaseType": "release"
+      }
+    ],
+    "afterPack": "scripts/after-pack.cjs"
   }
 }

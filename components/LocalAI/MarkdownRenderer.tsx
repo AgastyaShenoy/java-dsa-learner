@@ -1,175 +1,77 @@
 'use client';
 
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import Prism from 'prismjs';
-
-// Import essential language highlighters
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-c';
 import 'prismjs/components/prism-cpp';
-import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-javascript';
+import 'katex/dist/katex.min.css';
+import { Check, Copy } from 'lucide-react';
 
-import { Copy, Check } from 'lucide-react';
-
-interface MarkdownRendererProps {
-  content: string;
-  isStreaming?: boolean;
+/** Models often emit \( \) and \[ \]; remark-math only understands $ and $$. */
+function normaliseMath(md: string): string {
+  return md
+    .replace(/\\\[([\s\S]+?)\\\]/g, (_, m) => `\n$$${m}$$\n`)
+    .replace(/\\\(([\s\S]+?)\\\)/g, (_, m) => `$${m}$`);
 }
 
-export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
-  content,
-  isStreaming = false,
-}) => {
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-
-  const handleCopy = (code: string, idx: number) => {
-    navigator.clipboard.writeText(code);
-    setCopiedIndex(idx);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  };
-
-  let codeBlockCounter = 0;
-
+function CodeBlock({ code, lang }: { code: string; lang: string }) {
+  const [copied, setCopied] = useState(false);
+  const grammar = Prism.languages[lang] ?? Prism.languages.java;
+  // Prism escapes the code, so this HTML is safe.
+  const html = Prism.highlight(code, grammar, lang);
   return (
-    <div className="prose prose-invert prose-xs max-w-none space-y-2 text-xs leading-relaxed">
-      <ReactMarkdown
-        remarkPlugins={[remarkMath]}
-        rehypePlugins={[rehypeKatex]}
-        components={{
-          // Code block highlighting & inline code
-          code({ className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || '');
-            const rawCode = String(children).replace(/\n$/, '');
-            const isInline = !match && !rawCode.includes('\n');
-
-            if (isInline) {
-              return (
-                <code
-                  className="bg-zinc-900/90 text-zinc-200 px-1.5 py-0.5 rounded font-mono text-[11px] border border-zinc-800"
-                  {...props}
-                >
-                  {children}
-                </code>
-              );
-            }
-
-            const currentIdx = codeBlockCounter++;
-            const lang = match ? match[1].toLowerCase() : 'java';
-            const grammar = Prism.languages[lang] || Prism.languages.java || Prism.languages.clike;
-            
-            let highlightedHtml = '';
-            try {
-              highlightedHtml = Prism.highlight(rawCode, grammar, lang);
-            } catch {
-              highlightedHtml = rawCode;
-            }
-
-            return (
-              <div className="my-2.5 rounded-lg bg-[#000000] border border-zinc-800 overflow-hidden font-mono text-xs shadow-md">
-                {/* Code Block Header */}
-                <div className="flex items-center justify-between px-3 py-1.5 bg-[#09090b] border-b border-zinc-800 text-[11px] text-zinc-400">
-                  <span className="font-semibold uppercase tracking-wider text-zinc-400 text-[10px]">
-                    {match ? match[1] : 'java'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(rawCode, currentIdx)}
-                    className="hover:text-white flex items-center space-x-1 transition text-[11px]"
-                  >
-                    {copiedIndex === currentIdx ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="text-emerald-400">Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5 text-zinc-400" />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Highlighted Code Output */}
-                <pre className="p-3.5 overflow-x-auto text-zinc-200 leading-normal font-mono text-[11.5px] no-scrollbar">
-                  <code
-                    className={`language-${lang}`}
-                    dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-                  />
-                </pre>
-              </div>
-            );
-          },
-
-          // Paragraph styling
-          p({ children }) {
-            return <p className="mb-2 last:mb-0 leading-relaxed text-zinc-200">{children}</p>;
-          },
-
-          // Headings
-          h1({ children }) {
-            return <h1 className="text-sm font-bold text-white mt-3 mb-1.5 pb-1 border-b border-zinc-800">{children}</h1>;
-          },
-          h2({ children }) {
-            return <h2 className="text-xs font-bold text-white mt-2.5 mb-1">{children}</h2>;
-          },
-          h3({ children }) {
-            return <h3 className="text-xs font-semibold text-zinc-200 mt-2 mb-1">{children}</h3>;
-          },
-
-          // Lists
-          ul({ children }) {
-            return <ul className="list-disc list-inside space-y-1 my-1.5 text-zinc-300 pl-1">{children}</ul>;
-          },
-          ol({ children }) {
-            return <ol className="list-decimal list-inside space-y-1 my-1.5 text-zinc-300 pl-1">{children}</ol>;
-          },
-          li({ children }) {
-            return <li className="leading-relaxed">{children}</li>;
-          },
-
-          // Blockquotes
-          blockquote({ children }) {
-            return (
-              <blockquote className="border-l-2 border-zinc-700 bg-zinc-950/60 rounded-r px-3 py-1.5 my-2 text-zinc-300 italic">
-                {children}
-              </blockquote>
-            );
-          },
-
-          // Tables
-          table({ children }) {
-            return (
-              <div className="overflow-x-auto my-2 rounded border border-zinc-800">
-                <table className="w-full text-left text-xs border-collapse">
-                  {children}
-                </table>
-              </div>
-            );
-          },
-          th({ children }) {
-            return <th className="bg-zinc-900 px-2.5 py-1.5 border-b border-zinc-800 font-semibold text-white text-[11px]">{children}</th>;
-          },
-          td({ children }) {
-            return <td className="px-2.5 py-1.5 border-b border-zinc-800/60 text-zinc-300 text-[11px]">{children}</td>;
-          },
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-
-      {/* Streaming blinking cursor */}
-      {isStreaming && (
-        <span className="inline-block w-1.5 h-3.5 bg-zinc-300 animate-pulse ml-0.5 align-middle" />
-      )}
+    <div className="my-2 rounded bg-paper-0 border border-line overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1 border-b border-line text-[10px] font-mono uppercase text-ink-2">
+        <span>{lang}</span>
+        <button
+          type="button"
+          className="flex items-center gap-1 hover:text-ink normal-case"
+          onClick={() => { navigator.clipboard?.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+        >
+          {copied ? <><Check className="w-3 h-3 text-ink-green" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+        </button>
+      </div>
+      <pre className="p-3 overflow-x-auto text-[12px] leading-normal font-mono text-ink"><code dangerouslySetInnerHTML={{ __html: html }} /></pre>
     </div>
   );
+}
+
+const components: Components = {
+  // Block code arrives as <pre><code class="language-x">; render it ourselves and drop the outer <pre>.
+  pre({ children }) {
+    const child = React.Children.only(children) as React.ReactElement<{ className?: string; children?: React.ReactNode }>;
+    const lang = /language-(\w+)/.exec(child.props.className ?? '')?.[1]?.toLowerCase() ?? 'java';
+    return <CodeBlock code={String(child.props.children ?? '').replace(/\n$/, '')} lang={lang} />;
+  },
+  code({ children }) {
+    return <code className="bg-paper-2 text-ink px-1 py-0.5 rounded font-mono text-[12px] border border-line">{children}</code>;
+  },
+  p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
+  h1: ({ children }) => <h3 className="text-sm font-semibold text-ink mt-3 mb-1">{children}</h3>,
+  h2: ({ children }) => <h3 className="text-sm font-semibold text-ink mt-3 mb-1">{children}</h3>,
+  h3: ({ children }) => <h4 className="text-sm font-semibold text-ink mt-2 mb-1">{children}</h4>,
+  ul: ({ children }) => <ul className="list-disc pl-5 my-2 space-y-1">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal pl-5 my-2 space-y-1">{children}</ol>,
+  blockquote: ({ children }) => <blockquote className="border-l-2 border-line pl-3 my-2 text-ink-2">{children}</blockquote>,
+  a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 text-ink">{children}</a>,
+  table: ({ children }) => <div className="overflow-x-auto my-2"><table className="text-xs border-collapse">{children}</table></div>,
+  th: ({ children }) => <th className="border border-line px-2 py-1 text-left text-ink">{children}</th>,
+  td: ({ children }) => <td className="border border-line px-2 py-1 text-ink">{children}</td>,
 };
+
+/** Memoised: a finished message is parsed once, not on every keystroke or streamed token. */
+export const MarkdownRenderer = React.memo(function MarkdownRenderer({ content }: { content: string }) {
+  return (
+    <div className="text-sm leading-relaxed text-ink break-words">
+      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={components}>
+        {normaliseMath(content)}
+      </ReactMarkdown>
+    </div>
+  );
+});

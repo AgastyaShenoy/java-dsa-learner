@@ -1,13 +1,10 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { CursorAppSkeleton } from '@/components/AppShell';
+import { AppSkeleton } from '@/components/AppSkeleton';
 
-// Dynamic import with ssr: false guarantees zero hydration mismatch for browser-only IndexedDB/Dexie state
-const AppShell = dynamic(() => import('@/components/AppShell'), {
-  ssr: false,
-  loading: () => <CursorAppSkeleton />
-});
+// IndexedDB only exists in the browser, so the app renders client-side only.
+const AppShell = dynamic(() => import('@/components/AppShell'), { ssr: false, loading: () => <AppSkeleton /> });
 
 export default function Home() {
   return <AppShell />;

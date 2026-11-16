@@ -17,8 +17,14 @@ const eslintConfig = [
       ".next/**",
       "out/**",
       "build/**",
+      "release/**",
       "next-env.d.ts",
     ],
+  },
+  {
+    // Electron main/preload and build hooks are plain CommonJS run by Node/Electron.
+    files: ["electron/**/*.js", "scripts/**/*.cjs"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
   },
 ];
 

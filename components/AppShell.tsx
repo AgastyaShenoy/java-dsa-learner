@@ -1,281 +1,344 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Navbar } from './Navbar';
-import { TargetHeader } from './MissionControl/TargetHeader';
-import { TodayQueue } from './MissionControl/TodayQueue';
-import { ResourceDrawer } from './ResourceDrawer/ResourceDrawer';
-import { PostSolveModal } from './PostSolveModal/PostSolveModal';
-import { RoadmapView } from './Roadmap/RoadmapView';
-import { AICoachView } from './AICoach/AICoachView';
-import { SettingsModal } from './SettingsModal';
-import { EmbeddedLeetCodeModal } from './EmbeddedLeetCode/EmbeddedLeetCodeModal';
-import { LocalAIChatDrawer } from './LocalAI/LocalAIChatDrawer';
-import { 
-  initDatabase, 
-  getTodayQueue, 
-  calculatePacingMetrics, 
-  getUserSettings, 
-  updateUserSettings,
-  getAllProblems,
-  getAllLogs,
-  TodayQueueItem
-} from '@/lib/db';
-import { Problem, ProblemLog, PacingMetrics } from '@/types';
-import { Bot } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { Navbar, type Tab } from './Navbar';
+import { TodayView } from './Today/TodayView';
+import { SheetView } from './Sheet/SheetView';
+import { ProblemDrawer } from './ProblemDrawer';
+import { LogAttemptModal, type LogRequest } from './LogAttemptModal';
+import { FocusSession } from './Focus/FocusSession';
+import { AppSkeleton } from './AppSkeleton';
+import { db, initDatabase, getSettings, getSession, saveSession, addAttempt, editAttempt, deleteAttempt, SEED_PROBLEMS } from '@/lib/db';
+import { buildStates, computeStats, nextKind, planToday, suggestStatus } from '@/lib/progress';
+import { elapsedMs, newSession, openPractice, practiceUrl } from '@/lib/session';
+import { canFloat, preparePipDocument, requestFloat } from '@/lib/float';
+import { FloatingTimer, FloatPanel } from './Focus/FloatingTimer';
+import { useToday } from '@/lib/hooks';
+import { localDay } from '@/lib/dates';
+import type { Attempt, Problem } from '@/types';
+import { DEFAULT_SETTINGS } from '@/types';
 
-export function CursorAppSkeleton() {
-  return (
-    <div className="min-h-screen bg-black text-zinc-300 flex flex-col">
-      {/* Top command bar skeleton */}
-      <div className="h-13 border-b border-zinc-900 bg-black flex items-center justify-between px-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-6 h-6 rounded bg-zinc-900 animate-pulse" />
-          <div className="w-24 h-4 bg-zinc-900 rounded animate-pulse" />
-        </div>
-        <div className="w-48 h-7 bg-zinc-900 rounded-lg animate-pulse" />
-        <div className="w-28 h-6 bg-zinc-900 rounded animate-pulse" />
+// Heavy, rarely-opened panels load on demand so the first paint stays light.
+const SettingsModal = dynamic(() => import('./SettingsModal').then(m => m.SettingsModal), { ssr: false });
+const LocalAIChatDrawer = dynamic(() => import('./LocalAI/LocalAIChatDrawer').then(m => m.LocalAIChatDrawer), { ssr: false });
+
+const PROBLEMS: Problem[] = [...SEED_PROBLEMS].sort((a, b) => a.n - b.n);
+const BY_ID = new Map(PROBLEMS.map(p => [p.id, p]));
+
+// Set by electron/preload.js in the desktop app; undefined in a normal browser.
+// (This module only ever runs client-side: page.tsx loads it with ssr: false.)
+const desktop = typeof window !== 'undefined' ? window.desktop : undefined;
+const IS_FLOAT_WINDOW = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('float') === '1';
+
+export default function AppShell() {
+  const [ready, setReady] = useState(false);
+  const [bootError, setBootError] = useState<string>();
+
+  useEffect(() => {
+    initDatabase().then(() => setReady(true), err => setBootError(err instanceof Error ? err.message : String(err)));
+  }, []);
+
+  if (!ready) return IS_FLOAT_WINDOW ? null : <AppSkeleton error={bootError} />;
+  return IS_FLOAT_WINDOW ? <FloatApp /> : <App />;
+}
+
+/**
+ * The desktop app's always-on-top timer window. Same origin as the main window, so it
+ * reads and writes the same IndexedDB; Dexie's live queries keep both windows in sync.
+ */
+function FloatApp() {
+  const session = useLiveQuery(getSession, [], undefined);
+  const settings = useLiveQuery(getSettings, [], DEFAULT_SETTINGS);
+  const problem = session ? BY_ID.get(session.problemId) : undefined;
+  useEffect(() => { document.title = 'Timer'; }, []);
+
+  if (!session || !problem) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center gap-3 p-4 text-center text-ink-2">
+        <p>No attempt running.</p>
+        <button className="btn" onClick={() => desktop?.focusMain()}>Back to the app</button>
       </div>
-
-      {/* Body skeleton */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-        <div className="h-28 rounded-xl bg-zinc-950 border border-zinc-900 p-5 flex items-center justify-between animate-pulse">
-          <div className="w-48 h-8 bg-zinc-900 rounded" />
-          <div className="flex space-x-2">
-            <div className="w-20 h-16 bg-zinc-900 rounded" />
-            <div className="w-20 h-16 bg-zinc-900 rounded" />
-            <div className="w-20 h-16 bg-zinc-900 rounded" />
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="w-36 h-4 bg-zinc-900 rounded animate-pulse" />
-          <div className="h-24 rounded-lg bg-zinc-950 border border-zinc-900 animate-pulse" />
-          <div className="h-24 rounded-lg bg-zinc-950 border border-zinc-900 animate-pulse" />
-          <div className="h-24 rounded-lg bg-zinc-950 border border-zinc-900 animate-pulse" />
-        </div>
-      </main>
-    </div>
+    );
+  }
+  return (
+    <FloatPanel
+      session={session}
+      problem={problem}
+      lockMinutes={settings.hintLockMinutes}
+      practiceOpened
+      onOpenPractice={() => void desktop?.openExternal(practiceUrl(problem))}
+      onFinish={outcome => desktop?.finishFromFloat(outcome)}
+      onBackToApp={() => desktop?.focusMain()}
+    />
   );
 }
 
-export default function AppShell() {
-  const [isReady, setIsReady] = useState(false);
-  const [activeTab, setActiveTab] = useState<'mission-control' | 'roadmap' | 'ai-coach'>('mission-control');
-  
-  // Data state
-  const [metrics, setMetrics] = useState<PacingMetrics | null>(null);
-  const [queueItems, setQueueItems] = useState<TodayQueueItem[]>([]);
-  const [targetCount, setTargetCount] = useState<number>(4);
-  const [dueCount, setDueCount] = useState<number>(0);
-  const [solvedTodayCount, setSolvedTodayCount] = useState<number>(0);
-  const [problems, setProblems] = useState<Problem[]>([]);
-  const [logs, setLogs] = useState<ProblemLog[]>([]);
+function App() {
+  const today = useToday();
+  const attempts = useLiveQuery(() => db.attempts.toArray(), [], [] as Attempt[]);
+  const settings = useLiveQuery(getSettings, [], DEFAULT_SETTINGS);
+  const session = useLiveQuery(getSession, [], undefined);
 
-  // Modal / Drawer state
-  const [studyDeckProblem, setStudyDeckProblem] = useState<Problem | null>(null);
-  const [isStudyDeckOpen, setIsStudyDeckOpen] = useState(false);
-  
-  const [solveProblem, setSolveProblem] = useState<Problem | null>(null);
-  const [solveHintsCount, setSolveHintsCount] = useState<number>(0);
-  const [solveTimeSpent, setSolveTimeSpent] = useState<number | undefined>(undefined);
-  const [isSolveModalOpen, setIsSolveModalOpen] = useState(false);
+  const states = useMemo(() => buildStates(PROBLEMS, attempts, today), [attempts, today]);
+  const plan = useMemo(() => planToday(PROBLEMS, states, today, settings.includeStretch), [states, today, settings.includeStretch]);
+  const stats = useMemo(() => computeStats(PROBLEMS, states, attempts, today), [states, attempts, today]);
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
-  // In-App Embedded LeetCode Workspace state
-  const [embeddedProblem, setEmbeddedProblem] = useState<Problem | null>(null);
-  const [isEmbeddedModalOpen, setIsEmbeddedModalOpen] = useState(false);
+  const [tab, setTab] = useState<Tab>('today');
+  const [drawerId, setDrawerId] = useState<string | null>(null);
+  const [logRequest, setLogRequest] = useState<LogRequest | null>(null);
+  const [focusMinimized, setFocusMinimized] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [pipWindow, setPipWindow] = useState<Window | null>(null);
+  // Desktop app: the float is a separate always-on-top window owned by Electron.
+  const [desktopFloatOpen, setDesktopFloatOpen] = useState(false);
+  const floatable = useMemo(() => !!desktop || canFloat(), []);
 
-  // Local AI (LM Studio) state
-  const [isLocalAIOpen, setIsLocalAIOpen] = useState<boolean>(false);
-  const [localAIProblem, setLocalAIProblem] = useState<Problem | null>(null);
+  const sessionProblem = session ? BY_ID.get(session.problemId) : undefined;
+  const focusOpen = !!session && !!sessionProblem && !focusMinimized && !logRequest;
 
-  // Refresh and calculate telemetry
-  const refreshData = useCallback(async () => {
-    try {
-      const [todayData, pacing, allProbs, allLogs, settings] = await Promise.all([
-        getTodayQueue(),
-        calculatePacingMetrics(),
-        getAllProblems(),
-        getAllLogs(),
-        getUserSettings()
-      ]);
+  // ─── Actions ──────────────────────────────────────────────────────────────
 
-      setQueueItems(todayData.queue);
-      setTargetCount(settings.targetProblemsPerDay);
-      setDueCount(todayData.dueCount);
-      setSolvedTodayCount(todayData.solvedTodayCount);
-      setMetrics(pacing);
-      setProblems(allProbs);
-      setLogs(allLogs);
-    } catch (err) {
-      console.error('Error refreshing SDE Tracker state:', err);
+  const [practiceOpened, setPracticeOpened] = useState(false);
+
+  const attachFloat = useCallback((pw: Window) => {
+    if (!pw.document.documentElement.hasAttribute('data-prepared')) {
+      preparePipDocument(pw);
+      pw.document.documentElement.setAttribute('data-prepared', '');
+      pw.addEventListener('pagehide', () => setPipWindow(null), { once: true });
+      setPracticeOpened(false);
     }
+    setPipWindow(pw);
   }, []);
 
-  // Initialize Dexie & hydrate initial data on mount
-  useEffect(() => {
-    const bootstrap = async () => {
-      await initDatabase();
-      await refreshData();
-      setIsReady(true);
-    };
-    bootstrap();
-  }, [refreshData]);
-
-  // Adjust daily target with instant feedback
-  const handleAdjustTarget = async (delta: number) => {
-    const current = await getUserSettings();
-    const newTarget = Math.max(1, current.targetProblemsPerDay + delta);
-    await updateUserSettings({ targetProblemsPerDay: newTarget });
-    await refreshData();
-  };
-
-  const handleOpenStudyDeck = (problem: Problem) => {
-    setStudyDeckProblem(problem);
-    setIsStudyDeckOpen(true);
-  };
-
-  const handleOpenSolveLogger = (problem: Problem, initialHints = 0, initialTime?: number) => {
-    setSolveProblem(problem);
-    setSolveHintsCount(initialHints);
-    setSolveTimeSpent(initialTime);
-    setIsSolveModalOpen(true);
-  };
-
-  const handleOpenEmbeddedSolver = (problem: Problem) => {
-    setEmbeddedProblem(problem);
-    setIsEmbeddedModalOpen(true);
-  };
-
-  const handleOpenLocalAI = (problem?: Problem) => {
-    if (problem) {
-      setLocalAIProblem(problem);
-    } else if (embeddedProblem) {
-      setLocalAIProblem(embeddedProblem);
-    } else if (studyDeckProblem) {
-      setLocalAIProblem(studyDeckProblem);
+  /**
+   * One click can't open both windows in Chrome: the floating timer and window.open each
+   * need the click's "user activation", and whichever goes first uses it up. So Start
+   * floats the timer, and the timer's first button opens LeetCode (a click inside the
+   * float counts as activation for the app too). Without float support, Start opens
+   * LeetCode directly, as before.
+   */
+  const floatTimer = useCallback(() => {
+    if (desktop) {
+      desktop.openFloat();
+      setDesktopFloatOpen(true);
+      return;
     }
-    setIsLocalAIOpen(true);
-  };
+    requestFloat()?.then(attachFloat, err => console.warn('Floating timer not opened:', err));
+  }, [attachFloat]);
 
-  if (!isReady) {
-    return <CursorAppSkeleton />;
-  }
+  const openPracticeWindow = useCallback((p: Problem) => {
+    if (desktop) {
+      // Your normal browser, where you're logged in to LeetCode.
+      void desktop.openExternal(practiceUrl(p));
+      setPracticeOpened(true);
+      return;
+    }
+    if (openPractice(p)) setPracticeOpened(true);
+  }, []);
+
+  const startAttempt = useCallback((p: Problem) => {
+    if (session && session.problemId !== p.id) {
+      const current = BY_ID.get(session.problemId);
+      if (!window.confirm(`You have an attempt running on "${current?.title}". Discard it and start "${p.title}"?`)) return;
+    }
+    if (desktop) {
+      // No popup blocker on the desktop, so one click does both.
+      floatTimer();
+      openPracticeWindow(p);
+    } else if (floatable) floatTimer();
+    else openPracticeWindow(p);
+    if (!session || session.problemId !== p.id) {
+      void saveSession(newSession(p.id, nextKind(states.get(p.id))));
+    }
+    setDrawerId(null);
+    setFocusMinimized(false);
+  }, [session, states, floatable, floatTimer, openPracticeWindow]);
+
+  // The float belongs to the session: close it when a session ENDS (logged or discarded).
+  // Not merely "no session yet": right after Start the new session is still being saved.
+  const hadSession = useRef(false);
+  useEffect(() => {
+    if (hadSession.current && !session) {
+      pipWindow?.close();
+      desktop?.closeFloat();
+    }
+    hadSession.current = !!session;
+  }, [session, pipWindow]);
+
+  const backToApp = useCallback(() => {
+    window.focus();
+    setFocusMinimized(false);
+  }, []);
+
+  const finishSession = useCallback((outcome: 'solved' | 'stuck') => {
+    if (!session) return;
+    pipWindow?.close();
+    desktop?.closeFloat();
+    window.focus();
+    const minutes = Math.max(1, Math.round(elapsedMs(session) / 60_000));
+    setLogRequest({
+      mode: 'new',
+      problemId: session.problemId,
+      fromSession: true,
+      prefill: {
+        kind: session.kind,
+        minutes,
+        hintsUsed: session.hintsRevealed,
+        sawSolution: session.solutionRevealed,
+        status: outcome === 'stuck' ? 'BLOCKER' : suggestStatus(session.hintsRevealed, session.solutionRevealed),
+        notes: session.triedNotes.length ? session.triedNotes.map((t, i) => `Before hint ${i + 1}: ${t}`).join('\n') : '',
+      },
+    });
+  }, [session, pipWindow]);
+
+  // Desktop: "Solved" / "Didn't get it" in the float window arrive here.
+  const finishRef = useRef(finishSession);
+  finishRef.current = finishSession;
+  useEffect(() => {
+    if (!desktop) return;
+    const offFinish = desktop.onFinish(outcome => finishRef.current(outcome));
+    const offClosed = desktop.onFloatClosed(() => setDesktopFloatOpen(false));
+    return () => { offFinish(); offClosed(); };
+  }, []);
+
+  const discardSession = useCallback(async () => {
+    if (!window.confirm('Discard this attempt? The timer and revealed hints are thrown away; nothing is logged.')) return;
+    await saveSession(null);
+    setFocusMinimized(false);
+  }, []);
+
+  const handleSaveLog = useCallback(async (req: LogRequest, values: Pick<Attempt, 'status' | 'minutes' | 'hintsUsed' | 'notes' | 'sawSolution'>) => {
+    if (req.mode === 'edit' && req.attempt?.id !== undefined) {
+      await editAttempt(req.attempt.id, values);
+    } else {
+      const now = new Date();
+      await addAttempt({
+        problemId: req.problemId,
+        kind: req.prefill?.kind ?? nextKind(states.get(req.problemId)),
+        day: localDay(now),
+        at: now.toISOString(),
+        ...values,
+      });
+      if (req.fromSession) await saveSession(null);
+    }
+    setLogRequest(null);
+  }, [states]);
+
+  const handleDeleteAttempt = useCallback(async (a: Attempt) => {
+    if (a.id === undefined) return;
+    if (!window.confirm(`Delete the ${a.kind === 'first' ? 'first attempt' : 're-solve'} from ${a.day}? This can't be undone.`)) return;
+    await deleteAttempt(a.id);
+    setLogRequest(null);
+  }, []);
+
+  const drawerProblem = drawerId ? BY_ID.get(drawerId) : undefined;
+  const logProblem = logRequest ? BY_ID.get(logRequest.problemId) : undefined;
+  const aiProblem = sessionProblem ?? drawerProblem;
 
   return (
-    <div className="min-h-screen bg-black text-[#ededed] flex flex-col selection:bg-zinc-800 selection:text-white">
-      {/* Navbar */}
+    <div className="min-h-screen flex flex-col">
       <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        metrics={metrics}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onToggleLocalAI={() => setIsLocalAIOpen(!isLocalAIOpen)}
-        isLocalAIOpen={isLocalAIOpen}
+        tab={tab}
+        setTab={setTab}
+        stats={stats}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenAI={() => setAiOpen(true)}
+        session={focusMinimized ? session : undefined}
+        sessionTitle={sessionProblem?.title}
+        onResumeSession={() => setFocusMinimized(false)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6">
-        
-        {/* View A: Mission Control (Daily Dashboard) */}
-        {activeTab === 'mission-control' && (
-          <div>
-            <TargetHeader
-              metrics={metrics}
-              onAdjustTarget={handleAdjustTarget}
-            />
-            <TodayQueue
-              queueItems={queueItems}
-              dueCount={dueCount}
-              solvedTodayCount={solvedTodayCount}
-              targetCount={targetCount}
-              onOpenStudyDeck={handleOpenStudyDeck}
-              onOpenSolveLogger={(p: Problem) => handleOpenSolveLogger(p, 0)}
-              onOpenEmbeddedSolver={handleOpenEmbeddedSolver}
-            />
-          </div>
-        )}
-
-        {/* View D: Striver Sheet Roadmap View */}
-        {activeTab === 'roadmap' && (
-          <RoadmapView
-            problems={problems}
-            logs={logs}
-            onOpenStudyDeck={handleOpenStudyDeck}
-            onOpenSolveLogger={(p: Problem) => handleOpenSolveLogger(p, 0)}
-            onOpenEmbeddedSolver={handleOpenEmbeddedSolver}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8">
+        {tab === 'today' ? (
+          <TodayView
+            plan={plan}
+            stats={stats}
+            today={today}
+            session={session}
+            sessionProblem={sessionProblem}
+            settings={settings}
+            canFloat={floatable}
+            onStart={startAttempt}
+            onOpenProblem={p => setDrawerId(p.id)}
+            onResume={() => setFocusMinimized(false)}
+            onBrowse={() => setTab('sheet')}
           />
-        )}
-
-        {/* View E: AI Progress Coach & Assessment (Gemini Powered) */}
-        {activeTab === 'ai-coach' && (
-          <AICoachView />
+        ) : (
+          <SheetView problems={PROBLEMS} states={states} today={today} onOpenProblem={p => setDrawerId(p.id)} />
         )}
       </main>
 
-      {/* View: In-App Embedded LeetCode Workspace */}
-      <EmbeddedLeetCodeModal
-        problem={embeddedProblem}
-        isOpen={isEmbeddedModalOpen}
-        onClose={() => setIsEmbeddedModalOpen(false)}
-        onOpenSolveLogger={(p: Problem, timeSpent?: number) => handleOpenSolveLogger(p, 0, timeSpent)}
-        onOpenLocalAI={(p: Problem) => handleOpenLocalAI(p)}
-      />
+      <footer className="border-t-2 border-line py-5 text-center text-xs text-ink-2 px-4">
+        Striver&apos;s 180 · local-first · your data stays in this browser (back it up in Settings)
+      </footer>
 
-      {/* Right-Hand Local LM Studio AI Chat Drawer */}
-      <LocalAIChatDrawer
-        isOpen={isLocalAIOpen}
-        onClose={() => setIsLocalAIOpen(false)}
-        activeProblem={localAIProblem || embeddedProblem || studyDeckProblem}
-      />
-
-      {/* Floating Right Edge Quick-Toggle for Local AI */}
-      {!isLocalAIOpen && !isEmbeddedModalOpen && (
-        <button
-          onClick={() => handleOpenLocalAI()}
-          className="fixed right-0 top-1/2 -translate-y-1/2 z-30 bg-[#121215] hover:bg-zinc-800 text-zinc-400 hover:text-white border-l border-t border-b border-zinc-800 px-2 py-3.5 rounded-l-lg shadow-xl flex flex-col items-center space-y-1.5 transition group"
-          title="Open Local AI Chat (LM Studio)"
-        >
-          <Bot className="w-4 h-4 text-zinc-400 group-hover:text-emerald-400 transition" />
-          <span className="[writing-mode:vertical-lr] text-[9px] font-mono tracking-widest text-zinc-500 group-hover:text-zinc-300 uppercase">
-            Local AI
-          </span>
-        </button>
+      {drawerProblem && (
+        <ProblemDrawer
+          problem={drawerProblem}
+          state={states.get(drawerProblem.id)!}
+          today={today}
+          activeSessionProblemId={session?.problemId ?? null}
+          onClose={() => setDrawerId(null)}
+          onStart={() => startAttempt(drawerProblem)}
+          onLogElsewhere={() => setLogRequest({ mode: 'new', problemId: drawerProblem.id })}
+          onEditAttempt={a => setLogRequest({ mode: 'edit', problemId: drawerProblem.id, attempt: a })}
+          onDeleteAttempt={handleDeleteAttempt}
+          onAskAI={() => setAiOpen(true)}
+        />
       )}
 
-      {/* View B: Resource Drawer / Slide-Over Modal */}
-      <ResourceDrawer
-        problem={studyDeckProblem}
-        isOpen={isStudyDeckOpen}
-        onClose={() => setIsStudyDeckOpen(false)}
-        onOpenLogger={(prob: Problem, hintsCount: number) => {
-          handleOpenSolveLogger(prob, hintsCount);
-        }}
-      />
+      {focusOpen && session && sessionProblem && (
+        <FocusSession
+          session={session}
+          problem={sessionProblem}
+          lockMinutes={settings.hintLockMinutes}
+          onMinimize={() => setFocusMinimized(true)}
+          onFinish={finishSession}
+          onDiscard={discardSession}
+          onAskAI={() => setAiOpen(true)}
+          onOpenPractice={() => openPracticeWindow(sessionProblem)}
+          onFloat={floatable && !pipWindow && !desktopFloatOpen ? floatTimer : undefined}
+        />
+      )}
 
-      {/* View C: 10-Second Post-Solve Modal */}
-      <PostSolveModal
-        problem={solveProblem}
-        initialHintsCount={solveHintsCount}
-        initialTimeSpentMinutes={solveTimeSpent}
-        isOpen={isSolveModalOpen}
-        onClose={() => setIsSolveModalOpen(false)}
-        onLogSaved={refreshData}
-      />
+      {pipWindow && session && sessionProblem && (
+        <FloatingTimer
+          pipWindow={pipWindow}
+          session={session}
+          problem={sessionProblem}
+          lockMinutes={settings.hintLockMinutes}
+          onFinish={finishSession}
+          onBackToApp={backToApp}
+          practiceOpened={practiceOpened}
+          onOpenPractice={() => openPracticeWindow(sessionProblem)}
+        />
+      )}
 
-      {/* Settings & Backup Modal */}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        onDataChanged={refreshData}
-      />
+      {logRequest && logProblem && (
+        <LogAttemptModal
+          request={logRequest}
+          problem={logProblem}
+          state={states.get(logProblem.id)!}
+          onClose={() => setLogRequest(null)}
+          onSave={handleSaveLog}
+          onDelete={handleDeleteAttempt}
+        />
+      )}
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-900 py-6 text-center text-xs text-zinc-600 font-mono">
-        SDE Tracker: Java Edition &bull; Local-first &bull; Dexie.js &bull; Local LM Studio &bull; Gemini 2.5 Flash
-      </footer>
+      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} settings={settings} attemptCount={attempts.length} />}
+
+      {aiOpen && (
+        <LocalAIChatDrawer
+          onClose={() => setAiOpen(false)}
+          baseUrl={settings.lmStudioUrl}
+          problem={aiProblem ?? null}
+          session={session && aiProblem && session.problemId === aiProblem.id ? session : undefined}
+          hasHistory={!!aiProblem && (states.get(aiProblem.id)?.attempts.length ?? 0) > 0}
+        />
+      )}
     </div>
   );
 }
